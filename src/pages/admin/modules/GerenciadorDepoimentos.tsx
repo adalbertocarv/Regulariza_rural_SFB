@@ -1,11 +1,11 @@
 import { useState, useEffect, FormEvent } from 'react';
 import { Plus, Pencil, Trash2, Loader2, Quote } from 'lucide-react';
 import { api, adminApi, Testimonial } from '../../../lib/api';
-import { Modal, ConfirmDelete, Field, inputClass, textareaClass } from './shared';
+import { Modal, ConfirmDelete, Field, inputClass, textareaClass } from './compartilhado';
 
 const emptyForm: Partial<Testimonial> = { quote: '', name: '', role: '', avatarUrl: '' };
 
-export default function TestimonialsManager() {
+export default function GerenciadorDepoimentos() {
   const [items, setItems] = useState<Testimonial[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);

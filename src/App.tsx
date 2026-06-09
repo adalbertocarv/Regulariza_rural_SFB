@@ -3,14 +3,14 @@ import { useEffect } from 'react';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
-import Home from './pages/Home';
-import Project from './pages/Project';
-import News from './pages/News';
-import Activities from './pages/Activities';
-import Results from './pages/Results';
-import Repository from './pages/Repository';
-import AdminLogin from './pages/admin/Login';
-import Dashboard from './pages/admin/Dashboard';
+import Inicio from './pages/Inicio';
+import Projeto from './pages/Projeto';
+import Noticias from './pages/Noticias';
+import Atividades from './pages/Atividades';
+import Resultados from './pages/Resultados';
+import Repositorio from './pages/Repositorio';
+import AcessoAdmin from './pages/admin/Acesso';
+import Painel from './pages/admin/Painel';
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -38,12 +38,12 @@ function PublicLayout() {
       <ScrollToTop />
       <Navbar />
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/projeto" element={<Project />} />
-        <Route path="/noticias" element={<News />} />
-        <Route path="/atividades" element={<Activities />} />
-        <Route path="/resultados" element={<Results />} />
-        <Route path="/repositorio" element={<Repository />} />
+        <Route path="/" element={<Inicio />} />
+        <Route path="/projeto" element={<Projeto />} />
+        <Route path="/noticias" element={<Noticias />} />
+        <Route path="/atividades" element={<Atividades />} />
+        <Route path="/resultados" element={<Resultados />} />
+        <Route path="/repositorio" element={<Repositorio />} />
       </Routes>
       <Footer />
     </>
@@ -56,12 +56,12 @@ export default function App() {
       <AuthProvider>
         <Routes>
           {/* CMS — Hidden routes, not linked from the public portal */}
-          <Route path="/rr-gestao/acesso" element={<AdminLogin />} />
+          <Route path="/rr-gestao/acesso" element={<AcessoAdmin />} />
           <Route
             path="/rr-gestao/painel"
             element={
               <ProtectedRoute>
-                <Dashboard />
+                <Painel />
               </ProtectedRoute>
             }
           />

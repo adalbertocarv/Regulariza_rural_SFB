@@ -1,11 +1,11 @@
 import { useState, useEffect, FormEvent } from 'react';
 import { Plus, Pencil, Trash2, Loader2, ChevronUp, ChevronDown } from 'lucide-react';
 import { api, adminApi, Faq } from '../../../lib/api';
-import { Modal, ConfirmDelete, Field, inputClass, textareaClass } from './shared';
+import { Modal, ConfirmDelete, Field, inputClass, textareaClass } from './compartilhado';
 
 const emptyForm: Partial<Faq> = { question: '', answer: '', orderNum: 1 };
 
-export default function FaqManager() {
+export default function GerenciadorFaq() {
   const [items, setItems] = useState<Faq[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);

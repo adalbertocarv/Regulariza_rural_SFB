@@ -12,7 +12,7 @@ const STAT_LABELS: Record<string, string> = {
   municipios_atendidos: 'Municípios Atendidos (Painel)',
 };
 
-export default function StatsManager() {
+export default function GerenciadorEstatisticas() {
   const [stats, setStats] = useState<DashboardStat[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState<string | null>(null);

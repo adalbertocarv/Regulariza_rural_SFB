@@ -16,7 +16,7 @@ const CAT_MAP: Record<string, string[]> = {
   'Tecnologia no Campo': ['TECNOLOGIA', 'CAMPO'],
 };
 
-export default function NewsPage() {
+export default function Noticias() {
   const [items, setItems] = useState<News[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [currentPage, setCurrentPage] = useState(1);

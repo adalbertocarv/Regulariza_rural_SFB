@@ -16,7 +16,7 @@ const STAT_LABELS: Record<string, string> = {
   municipios_atendidos: 'Municípios Atendidos',
 };
 
-export default function Results() {
+export default function Resultados() {
   const [stats, setStats] = useState<DashboardStat[]>([]);
   const [faqs, setFaqs] = useState<Faq[]>([]);
   const [loading, setLoading] = useState(true);

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { Leaf, Mail, Lock, AlertCircle, Loader2 } from 'lucide-react';
 
-export default function AdminLogin() {
+export default function AcessoAdmin() {
   const { login } = useAuth();
   const navigate = useNavigate();
   const [email, setEmail] = useState('');

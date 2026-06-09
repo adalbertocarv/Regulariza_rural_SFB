@@ -12,7 +12,7 @@ const iconMap: Record<string, React.ReactNode> = {
 
 const tabs = ['Documentos', 'Fotos', 'Vídeos', 'Entrevistas', 'Manual da Marca', 'Blog/Matérias'];
 
-export default function Repository() {
+export default function Repositorio() {
   const [documents, setDocuments] = useState<RepositoryDocument[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('Documentos');

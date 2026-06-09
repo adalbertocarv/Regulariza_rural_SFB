@@ -12,7 +12,7 @@ const badgeColors: Record<string, string> = {
   CAATINGA: 'bg-red-100 text-red-700',
 };
 
-export default function Activities() {
+export default function Atividades() {
   const [activities, setActivities] = useState<Activity[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);

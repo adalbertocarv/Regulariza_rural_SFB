@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   ChevronDown, ArrowRight, Mountain, Users, CheckCircle, FileText,
-  Quote, Satellite, Sprout, Scale, Loader2,
+  Quote, Loader2,
 } from 'lucide-react';
 import { api, News, Activity, Testimonial, DashboardStat } from '../lib/api';
 
@@ -44,7 +44,7 @@ function LoadingSpinner() {
   return <div className="flex justify-center py-12"><Loader2 className="w-8 h-8 text-green-600 animate-spin" /></div>;
 }
 
-export default function Home() {
+export default function Inicio() {
   const [stats, setStats] = useState<DashboardStat[]>([]);
   const [news, setNews] = useState<News[]>([]);
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
@@ -217,7 +217,6 @@ export default function Home() {
           {loading ? <LoadingSpinner /> : (
             <div className="grid md:grid-cols-3 gap-6 mb-10">
               {activities.map((act) => {
-                const Icon = act.badges[0] === 'RECUPERAÇÃO' ? Sprout : act.badges[0] === 'CERCAMENTO' ? Satellite : Scale;
                 return (
                   <div key={act.id} className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-shadow">
                     {act.imageUrl && <img src={act.imageUrl} alt={act.title} className="w-full h-44 object-cover" />}

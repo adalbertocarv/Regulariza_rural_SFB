@@ -1,7 +1,7 @@
 import { useState, useEffect, FormEvent } from 'react';
 import { Plus, Pencil, Trash2, Loader2, AlertCircle } from 'lucide-react';
 import { api, adminApi, News } from '../../../lib/api';
-import { Modal, ConfirmDelete, FileUpload, Field, inputClass, textareaClass, selectClass } from './shared';
+import { Modal, ConfirmDelete, FileUpload, Field, inputClass, textareaClass, selectClass } from './compartilhado';
 
 const CATEGORIES = [
   { label: 'Legislação', value: 'LEGISLAÇÃO', color: 'bg-yellow-100 text-yellow-700' },
@@ -17,7 +17,7 @@ const CATEGORIES = [
 
 const emptyForm: Partial<News> = { title: '', excerpt: '', content: '', category: 'LEGISLAÇÃO', categoryColor: 'bg-yellow-100 text-yellow-700', imageUrl: '' };
 
-export default function NewsManager() {
+export default function GerenciadorNoticias() {
   const [items, setItems] = useState<News[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');

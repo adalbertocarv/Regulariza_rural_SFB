@@ -5,12 +5,12 @@ import {
   LayoutDashboard, Newspaper, Zap, BookOpen, MessageSquare,
   BarChart3, HelpCircle, LogOut, Menu, X, Leaf, ChevronRight,
 } from 'lucide-react';
-import NewsManager from './modules/NewsManager';
-import ActivitiesManager from './modules/ActivitiesManager';
-import DocumentsManager from './modules/DocumentsManager';
-import TestimonialsManager from './modules/TestimonialsManager';
-import StatsManager from './modules/StatsManager';
-import FaqManager from './modules/FaqManager';
+import GerenciadorNoticias from './modules/GerenciadorNoticias';
+import GerenciadorAtividades from './modules/GerenciadorAtividades';
+import GerenciadorDocumentos from './modules/GerenciadorDocumentos';
+import GerenciadorDepoimentos from './modules/GerenciadorDepoimentos';
+import GerenciadorEstatisticas from './modules/GerenciadorEstatisticas';
+import GerenciadorFaq from './modules/GerenciadorFaq';
 
 type Section = 'overview' | 'news' | 'activities' | 'documents' | 'testimonials' | 'stats' | 'faqs';
 
@@ -62,7 +62,7 @@ function Overview({
   );
 }
 
-export default function Dashboard() {
+export default function Painel() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState<Section>('overview');
@@ -75,15 +75,16 @@ export default function Dashboard() {
 
   const renderSection = () => {
     switch (activeSection) {
-      case 'news': return <NewsManager />;
-      case 'activities': return <ActivitiesManager />;
-      case 'documents': return <DocumentsManager />;
-      case 'testimonials': return <TestimonialsManager />;
-      case 'stats': return <StatsManager />;
-      case 'faqs': return <FaqManager />;
+      case 'news': return <GerenciadorNoticias />;
+      case 'activities': return <GerenciadorAtividades />;
+      case 'documents': return <GerenciadorDocumentos />;
+      case 'testimonials': return <GerenciadorDepoimentos />;
+      case 'stats': return <GerenciadorEstatisticas />;
+      case 'faqs': return <GerenciadorFaq />;
       default: return <Overview user={user!} onSelectSection={setActiveSection} />;
     }
   };
+
 
   const currentNav = navItems.find((n) => n.id === activeSection);
 

@@ -1,7 +1,7 @@
 import { useState, useEffect, FormEvent } from 'react';
 import { Plus, Pencil, Trash2, Loader2, Download, FileText, Eye } from 'lucide-react';
 import { api, adminApi, RepositoryDocument } from '../../../lib/api';
-import { Modal, ConfirmDelete, FileUpload, Field, inputClass, textareaClass, selectClass } from './shared';
+import { Modal, ConfirmDelete, FileUpload, Field, inputClass, textareaClass, selectClass } from './compartilhado';
 
 const ICON_TYPES = ['pdf', 'docx', 'zip', 'artigo', 'video'];
 const DOC_TYPES = ['DOWNLOAD', 'LINK', 'WATCH'];
@@ -17,7 +17,7 @@ function DocTypeIcon({ type }: { type: string }) {
   return icons[type] || <div className={`${base} bg-gray-100`}><Download className="w-5 h-5 text-gray-700" /></div>;
 }
 
-export default function DocumentsManager() {
+export default function GerenciadorDocumentos() {
   const [items, setItems] = useState<RepositoryDocument[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);

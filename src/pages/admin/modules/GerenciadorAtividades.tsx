@@ -1,12 +1,12 @@
 import { useState, useEffect, FormEvent } from 'react';
 import { Plus, Pencil, Trash2, Loader2, X } from 'lucide-react';
 import { api, adminApi, Activity } from '../../../lib/api';
-import { Modal, ConfirmDelete, FileUpload, Field, inputClass, textareaClass } from './shared';
+import { Modal, ConfirmDelete, FileUpload, Field, inputClass, textareaClass } from './compartilhado';
 
 const ALL_BADGES = ['RECUPERAÇÃO', 'CERCAMENTO', 'MATA ATLÂNTICA', 'CERRADO', 'AMAZÔNIA', 'CAATINGA', 'SEMIARID'];
 const emptyForm: Partial<Activity> = { title: '', description: '', badges: [], targetValue: '', targetLabel: 'PÚBLICO', objective: '', imageUrl: '' };
 
-export default function ActivitiesManager() {
+export default function GerenciadorAtividades() {
   const [items, setItems] = useState<Activity[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);

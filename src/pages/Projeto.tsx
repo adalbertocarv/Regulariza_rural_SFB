@@ -1,4 +1,4 @@
-import { ArrowRight, Leaf, Users, Building2, Map, TrendingUp } from 'lucide-react';
+import { ArrowRight, Leaf, Users, Map } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const panoramaCards = [
@@ -68,7 +68,7 @@ const fundamentosCards = [
   },
 ];
 
-export default function Project() {
+export default function Projeto() {
   return (
     <main className="pt-16">
       {/* Page Header */}
