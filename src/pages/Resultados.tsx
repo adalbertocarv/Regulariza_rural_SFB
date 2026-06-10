@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Download, FileText, ChevronDown, ChevronUp, User, BookOpen, Loader2 } from 'lucide-react';
-import { api, DashboardStat, Faq } from '../lib/api';
+import { api, EstatisticaDashboard, PerguntaFrequente } from '../lib/api';
 
 const PANEL_STAT_KEYS = ['areas_mapeadas', 'processos_ativos', 'indice_regularidade', 'municipios_atendidos'];
 
@@ -17,8 +17,8 @@ const STAT_LABELS: Record<string, string> = {
 };
 
 export default function Resultados() {
-  const [stats, setStats] = useState<DashboardStat[]>([]);
-  const [faqs, setFaqs] = useState<Faq[]>([]);
+  const [stats, setStats] = useState<EstatisticaDashboard[]>([]);
+  const [faqs, setFaqs] = useState<PerguntaFrequente[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedFaq, setExpandedFaq] = useState<number | null>(0);
 
@@ -29,7 +29,7 @@ export default function Resultados() {
     }).finally(() => setLoading(false));
   }, []);
 
-  const panelStats = stats.filter((s) => PANEL_STAT_KEYS.includes(s.keyName));
+  const panelStats = stats.filter((s) => PANEL_STAT_KEYS.includes(s.nomeChave));
   const maxValue = Math.max(...monthlyData.map((d) => d.value));
 
   return (
@@ -50,11 +50,11 @@ export default function Resultados() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {panelStats.map((stat) => (
-              <div key={stat.keyName} className="bg-gray-50 rounded-lg p-6 border border-gray-100">
-                <div className="text-sm text-gray-600 mb-2">{STAT_LABELS[stat.keyName] || stat.keyName}</div>
-                <div className={`text-3xl font-bold ${stat.colorClass || 'text-green-700'}`}>
-                  {stat.value}
-                  {stat.unit && <span className="text-lg ml-1">{stat.unit}</span>}
+              <div key={stat.nomeChave} className="bg-gray-50 rounded-lg p-6 border border-gray-100">
+                <div className="text-sm text-gray-600 mb-2">{STAT_LABELS[stat.nomeChave] || stat.nomeChave}</div>
+                <div className={`text-3xl font-bold ${stat.classeCor || 'text-green-700'}`}>
+                  {stat.valor}
+                  {stat.unidade && <span className="text-lg ml-1">{stat.unidade}</span>}
                 </div>
               </div>
             ))}
@@ -168,11 +168,11 @@ export default function Resultados() {
               faqs.map((faq, index) => (
                 <div key={faq.id} className="border border-gray-200 rounded-lg overflow-hidden">
                   <button onClick={() => setExpandedFaq(expandedFaq === index ? null : index)} className="w-full px-6 py-4 text-left flex items-center justify-between hover:bg-gray-50 transition-colors font-medium text-gray-900">
-                    {faq.question}
+                    {faq.pergunta}
                     {expandedFaq === index ? <ChevronUp className="w-5 h-5 text-gray-500 flex-shrink-0" /> : <ChevronDown className="w-5 h-5 text-gray-500 flex-shrink-0" />}
                   </button>
                   {expandedFaq === index && (
-                    <div className="px-6 py-4 bg-gray-50 text-sm text-gray-600 leading-relaxed border-t border-gray-200">{faq.answer}</div>
+                    <div className="px-6 py-4 bg-gray-50 text-sm text-gray-600 leading-relaxed border-t border-gray-200">{faq.resposta}</div>
                   )}
                 </div>
               ))

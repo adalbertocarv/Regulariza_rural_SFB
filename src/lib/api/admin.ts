@@ -1,58 +1,58 @@
 import { request, API_BASE_URL, getToken } from './client';
-import { News, Activity, Testimonial, RepositoryDocument, DashboardStat, Faq } from './types';
+import { Noticia, Atividade, Depoimento, DocumentoRepositorio, EstatisticaDashboard, PerguntaFrequente } from './types';
 
 export const adminApi = {
   // Auth
   login: (email: string, password: string) =>
-    request<{ token: string; user: { id: number; email: string; name: string | null } }>(
-      '/auth/login',
+    request<{ token: string; user: { id: number; email: string; nome: string | null } }>(
+      '/autenticacao/login',
       { method: 'POST', body: JSON.stringify({ email, password }) }
     ),
-  getMe: () => request<{ id: number; email: string; name: string | null }>('/auth/me', { auth: true }),
+  getMe: () => request<{ id: number; email: string; nome: string | null }>('/autenticacao/me', { auth: true }),
 
   // News
-  createNews: (data: Partial<News>) =>
-    request<News>('/news', { method: 'POST', body: JSON.stringify(data), auth: true }),
-  updateNews: (id: number, data: Partial<News>) =>
-    request<News>(`/news/${id}`, { method: 'PUT', body: JSON.stringify(data), auth: true }),
+  createNews: (data: Partial<Noticia>) =>
+    request<Noticia>('/noticias', { method: 'POST', body: JSON.stringify(data), auth: true }),
+  updateNews: (id: number, data: Partial<Noticia>) =>
+    request<Noticia>(`/noticias/${id}`, { method: 'PUT', body: JSON.stringify(data), auth: true }),
   deleteNews: (id: number) =>
-    request<{ message: string }>(`/news/${id}`, { method: 'DELETE', auth: true }),
+    request<{ message: string }>(`/noticias/${id}`, { method: 'DELETE', auth: true }),
 
   // Activities
-  createActivity: (data: Partial<Activity>) =>
-    request<Activity>('/activities', { method: 'POST', body: JSON.stringify(data), auth: true }),
-  updateActivity: (id: number, data: Partial<Activity>) =>
-    request<Activity>(`/activities/${id}`, { method: 'PUT', body: JSON.stringify(data), auth: true }),
+  createActivity: (data: Partial<Atividade>) =>
+    request<Atividade>('/atividades', { method: 'POST', body: JSON.stringify(data), auth: true }),
+  updateActivity: (id: number, data: Partial<Atividade>) =>
+    request<Atividade>(`/atividades/${id}`, { method: 'PUT', body: JSON.stringify(data), auth: true }),
   deleteActivity: (id: number) =>
-    request<{ message: string }>(`/activities/${id}`, { method: 'DELETE', auth: true }),
+    request<{ message: string }>(`/atividades/${id}`, { method: 'DELETE', auth: true }),
 
   // Testimonials
-  createTestimonial: (data: Partial<Testimonial>) =>
-    request<Testimonial>('/testimonials', { method: 'POST', body: JSON.stringify(data), auth: true }),
-  updateTestimonial: (id: number, data: Partial<Testimonial>) =>
-    request<Testimonial>(`/testimonials/${id}`, { method: 'PUT', body: JSON.stringify(data), auth: true }),
+  createTestimonial: (data: Partial<Depoimento>) =>
+    request<Depoimento>('/depoimentos', { method: 'POST', body: JSON.stringify(data), auth: true }),
+  updateTestimonial: (id: number, data: Partial<Depoimento>) =>
+    request<Depoimento>(`/depoimentos/${id}`, { method: 'PUT', body: JSON.stringify(data), auth: true }),
   deleteTestimonial: (id: number) =>
-    request<{ message: string }>(`/testimonials/${id}`, { method: 'DELETE', auth: true }),
+    request<{ message: string }>(`/depoimentos/${id}`, { method: 'DELETE', auth: true }),
 
   // Documents
-  createDocument: (data: Partial<RepositoryDocument>) =>
-    request<RepositoryDocument>('/documents', { method: 'POST', body: JSON.stringify(data), auth: true }),
-  updateDocument: (id: number, data: Partial<RepositoryDocument>) =>
-    request<RepositoryDocument>(`/documents/${id}`, { method: 'PUT', body: JSON.stringify(data), auth: true }),
+  createDocument: (data: Partial<DocumentoRepositorio>) =>
+    request<DocumentoRepositorio>('/documentos', { method: 'POST', body: JSON.stringify(data), auth: true }),
+  updateDocument: (id: number, data: Partial<DocumentoRepositorio>) =>
+    request<DocumentoRepositorio>(`/documentos/${id}`, { method: 'PUT', body: JSON.stringify(data), auth: true }),
   deleteDocument: (id: number) =>
-    request<{ message: string }>(`/documents/${id}`, { method: 'DELETE', auth: true }),
+    request<{ message: string }>(`/documentos/${id}`, { method: 'DELETE', auth: true }),
 
   // Stats
-  updateStat: (keyName: string, data: Partial<DashboardStat>) =>
-    request<DashboardStat>(`/stats/${keyName}`, { method: 'PUT', body: JSON.stringify(data), auth: true }),
+  updateStat: (nomeChave: string, data: Partial<EstatisticaDashboard>) =>
+    request<EstatisticaDashboard>(`/estatisticas/${nomeChave}`, { method: 'PUT', body: JSON.stringify(data), auth: true }),
 
   // FAQs
-  createFaq: (data: Partial<Faq>) =>
-    request<Faq>('/faqs', { method: 'POST', body: JSON.stringify(data), auth: true }),
-  updateFaq: (id: number, data: Partial<Faq>) =>
-    request<Faq>(`/faqs/${id}`, { method: 'PUT', body: JSON.stringify(data), auth: true }),
+  createFaq: (data: Partial<PerguntaFrequente>) =>
+    request<PerguntaFrequente>('/perguntas', { method: 'POST', body: JSON.stringify(data), auth: true }),
+  updateFaq: (id: number, data: Partial<PerguntaFrequente>) =>
+    request<PerguntaFrequente>(`/perguntas/${id}`, { method: 'PUT', body: JSON.stringify(data), auth: true }),
   deleteFaq: (id: number) =>
-    request<{ message: string }>(`/faqs/${id}`, { method: 'DELETE', auth: true }),
+    request<{ message: string }>(`/perguntas/${id}`, { method: 'DELETE', auth: true }),
 
   // Upload
   uploadFile: (file: File, onProgress?: (pct: number) => void): Promise<{ url: string; filename: string }> => {

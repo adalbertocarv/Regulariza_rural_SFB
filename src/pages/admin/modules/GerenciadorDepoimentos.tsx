@@ -1,16 +1,16 @@
 import { useState, useEffect, FormEvent } from 'react';
 import { Plus, Pencil, Trash2, Loader2, Quote } from 'lucide-react';
-import { api, adminApi, Testimonial } from '../../../lib/api';
+import { api, adminApi, Depoimento } from '../../../lib/api';
 import { Modal, ConfirmDelete, Field, inputClass, textareaClass } from './compartilhado';
 
-const emptyForm: Partial<Testimonial> = { quote: '', name: '', role: '', avatarUrl: '' };
+const emptyForm: Partial<Depoimento> = { citacao: '', nome: '', cargo: '', urlAvatar: '' };
 
 export default function GerenciadorDepoimentos() {
-  const [items, setItems] = useState<Testimonial[]>([]);
+  const [items, setItems] = useState<Depoimento[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
-  const [editing, setEditing] = useState<Testimonial | null>(null);
-  const [form, setForm] = useState<Partial<Testimonial>>(emptyForm);
+  const [editing, setEditing] = useState<Depoimento | null>(null);
+  const [form, setForm] = useState<Partial<Depoimento>>(emptyForm);
   const [saving, setSaving] = useState(false);
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [deleting, setDeleting] = useState(false);
@@ -23,7 +23,7 @@ export default function GerenciadorDepoimentos() {
   useEffect(() => { loadData(); }, []);
 
   const openCreate = () => { setEditing(null); setForm(emptyForm); setShowModal(true); };
-  const openEdit = (item: Testimonial) => { setEditing(item); setForm({ ...item }); setShowModal(true); };
+  const openEdit = (item: Depoimento) => { setEditing(item); setForm({ ...item }); setShowModal(true); };
   const closeModal = () => { setShowModal(false); setEditing(null); setForm(emptyForm); };
 
   const handleSave = async (e: FormEvent) => {
@@ -61,18 +61,18 @@ export default function GerenciadorDepoimentos() {
           {items.map((item) => (
             <div key={item.id} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 hover:shadow-md transition-shadow">
               <Quote className="w-5 h-5 text-green-500 mb-3" />
-              <p className="text-gray-600 text-sm italic leading-relaxed mb-4 line-clamp-3">{item.quote}</p>
+              <p className="text-gray-600 text-sm italic leading-relaxed mb-4 line-clamp-3">{item.citacao}</p>
               <div className="flex items-center gap-3 mb-4">
-                {item.avatarUrl ? (
-                  <img src={item.avatarUrl} alt={item.name || ''} className="w-9 h-9 rounded-full object-cover" />
+                {item.urlAvatar ? (
+                  <img src={item.urlAvatar} alt={item.nome || ''} className="w-9 h-9 rounded-full object-cover" />
                 ) : (
                   <div className="w-9 h-9 rounded-full bg-green-100 flex items-center justify-center text-green-700 font-bold text-sm">
-                    {(item.name || '?')[0]}
+                    {(item.nome || '?')[0]}
                   </div>
                 )}
                 <div>
-                  <div className="font-semibold text-gray-900 text-sm">{item.name}</div>
-                  <div className="text-xs text-gray-400">{item.role}</div>
+                  <div className="font-semibold text-gray-900 text-sm">{item.nome}</div>
+                  <div className="text-xs text-gray-400">{item.cargo}</div>
                 </div>
               </div>
               <div className="flex justify-end gap-2 border-t border-gray-50 pt-3">
@@ -88,16 +88,16 @@ export default function GerenciadorDepoimentos() {
         <Modal title={editing ? 'Editar Depoimento' : 'Novo Depoimento'} onClose={closeModal}>
           <form onSubmit={handleSave} className="space-y-4">
             <Field label="Depoimento">
-              <textarea className={textareaClass} rows={4} value={form.quote || ''} onChange={(e) => setForm((f) => ({ ...f, quote: e.target.value }))} placeholder='"Texto do depoimento..."' />
+              <textarea className={textareaClass} rows={4} value={form.citacao || ''} onChange={(e) => setForm((f) => ({ ...f, citacao: e.target.value }))} placeholder='"Texto do depoimento..."' />
             </Field>
             <Field label="Nome">
-              <input className={inputClass} value={form.name || ''} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} />
+              <input className={inputClass} value={form.nome || ''} onChange={(e) => setForm((f) => ({ ...f, nome: e.target.value }))} />
             </Field>
             <Field label="Cargo / Região">
-              <input className={inputClass} value={form.role || ''} onChange={(e) => setForm((f) => ({ ...f, role: e.target.value }))} placeholder="Ex: Produtor Rural - Goiás" />
+              <input className={inputClass} value={form.cargo || ''} onChange={(e) => setForm((f) => ({ ...f, cargo: e.target.value }))} placeholder="Ex: Produtor Rural - Goiás" />
             </Field>
             <Field label="URL do Avatar">
-              <input className={inputClass} type="url" value={form.avatarUrl || ''} onChange={(e) => setForm((f) => ({ ...f, avatarUrl: e.target.value }))} placeholder="https://..." />
+              <input className={inputClass} type="url" value={form.urlAvatar || ''} onChange={(e) => setForm((f) => ({ ...f, urlAvatar: e.target.value }))} placeholder="https://..." />
             </Field>
             <div className="flex gap-3 pt-2">
               <button type="button" onClick={closeModal} className="flex-1 px-4 py-2.5 border border-gray-200 rounded-xl text-gray-700 hover:bg-gray-50">Cancelar</button>

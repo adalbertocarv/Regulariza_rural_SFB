@@ -1,11 +1,11 @@
 import { useState, useEffect, FormEvent } from 'react';
 import { Plus, Pencil, Trash2, Loader2, Download, FileText, Eye } from 'lucide-react';
-import { api, adminApi, RepositoryDocument } from '../../../lib/api';
+import { api, adminApi, DocumentoRepositorio } from '../../../lib/api';
 import { Modal, ConfirmDelete, FileUpload, Field, inputClass, textareaClass, selectClass } from './compartilhado';
 
 const ICON_TYPES = ['pdf', 'docx', 'zip', 'artigo', 'video'];
 const DOC_TYPES = ['DOWNLOAD', 'LINK', 'WATCH'];
-const emptyForm: Partial<RepositoryDocument> = { title: '', description: '', iconType: 'pdf', fileSize: '', docType: 'DOWNLOAD', fileUrl: '' };
+const emptyForm: Partial<DocumentoRepositorio> = { titulo: '', descricao: '', tipoIcone: 'pdf', tamanhoArquivo: '', tipoDocumento: 'DOWNLOAD', urlArquivo: '' };
 
 function DocTypeIcon({ type }: { type: string }) {
   const base = 'w-10 h-10 rounded-lg flex items-center justify-center';
@@ -18,11 +18,11 @@ function DocTypeIcon({ type }: { type: string }) {
 }
 
 export default function GerenciadorDocumentos() {
-  const [items, setItems] = useState<RepositoryDocument[]>([]);
+  const [items, setItems] = useState<DocumentoRepositorio[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
-  const [editing, setEditing] = useState<RepositoryDocument | null>(null);
-  const [form, setForm] = useState<Partial<RepositoryDocument>>(emptyForm);
+  const [editing, setEditing] = useState<DocumentoRepositorio | null>(null);
+  const [form, setForm] = useState<Partial<DocumentoRepositorio>>(emptyForm);
   const [saving, setSaving] = useState(false);
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [deleting, setDeleting] = useState(false);
@@ -35,7 +35,7 @@ export default function GerenciadorDocumentos() {
   useEffect(() => { loadData(); }, []);
 
   const openCreate = () => { setEditing(null); setForm(emptyForm); setShowModal(true); };
-  const openEdit = (item: RepositoryDocument) => { setEditing(item); setForm({ ...item }); setShowModal(true); };
+  const openEdit = (item: DocumentoRepositorio) => { setEditing(item); setForm({ ...item }); setShowModal(true); };
   const closeModal = () => { setShowModal(false); setEditing(null); setForm(emptyForm); };
 
   const handleSave = async (e: FormEvent) => {
@@ -83,15 +83,15 @@ export default function GerenciadorDocumentos() {
             <tbody className="divide-y divide-gray-50">
               {items.map((item) => (
                 <tr key={item.id} className="hover:bg-gray-50 transition-colors">
-                  <td className="px-5 py-3"><DocTypeIcon type={item.iconType || 'pdf'} /></td>
+                  <td className="px-5 py-3"><DocTypeIcon type={item.tipoIcone || 'pdf'} /></td>
                   <td className="px-5 py-3 max-w-xs">
-                    <div className="font-medium text-gray-900 truncate">{item.title}</div>
-                    <div className="text-gray-400 text-xs truncate">{item.description}</div>
+                    <div className="font-medium text-gray-900 truncate">{item.titulo}</div>
+                    <div className="text-gray-400 text-xs truncate">{item.descricao}</div>
                   </td>
                   <td className="px-5 py-3">
-                    <span className="text-xs font-bold px-2 py-0.5 bg-gray-100 text-gray-600 rounded">{item.docType}</span>
+                    <span className="text-xs font-bold px-2 py-0.5 bg-gray-100 text-gray-600 rounded">{item.tipoDocumento}</span>
                   </td>
-                  <td className="px-5 py-3 text-gray-500">{item.fileSize}</td>
+                  <td className="px-5 py-3 text-gray-500">{item.tamanhoArquivo}</td>
                   <td className="px-5 py-3 text-right">
                     <div className="flex items-center justify-end gap-1">
                       <button onClick={() => openEdit(item)} className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"><Pencil className="w-4 h-4" /></button>
@@ -109,30 +109,30 @@ export default function GerenciadorDocumentos() {
         <Modal title={editing ? 'Editar Documento' : 'Novo Documento'} onClose={closeModal}>
           <form onSubmit={handleSave} className="space-y-5">
             <Field label="Título" required>
-              <input className={inputClass} value={form.title || ''} onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))} required />
+              <input className={inputClass} value={form.titulo || ''} onChange={(e) => setForm((f) => ({ ...f, titulo: e.target.value }))} required />
             </Field>
             <Field label="Descrição">
-              <textarea className={textareaClass} rows={2} value={form.description || ''} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} />
+              <textarea className={textareaClass} rows={2} value={form.descricao || ''} onChange={(e) => setForm((f) => ({ ...f, descricao: e.target.value }))} />
             </Field>
             <div className="grid grid-cols-2 gap-4">
               <Field label="Tipo de Ícone">
-                <select className={selectClass} value={form.iconType || 'pdf'} onChange={(e) => setForm((f) => ({ ...f, iconType: e.target.value }))}>
+                <select className={selectClass} value={form.tipoIcone || 'pdf'} onChange={(e) => setForm((f) => ({ ...f, tipoIcone: e.target.value }))}>
                   {ICON_TYPES.map((t) => <option key={t} value={t}>{t.toUpperCase()}</option>)}
                 </select>
               </Field>
               <Field label="Tipo de Ação">
-                <select className={selectClass} value={form.docType || 'DOWNLOAD'} onChange={(e) => setForm((f) => ({ ...f, docType: e.target.value }))}>
+                <select className={selectClass} value={form.tipoDocumento || 'DOWNLOAD'} onChange={(e) => setForm((f) => ({ ...f, tipoDocumento: e.target.value }))}>
                   {DOC_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
                 </select>
               </Field>
             </div>
             <Field label="Tamanho / Descrição curta">
-              <input className={inputClass} value={form.fileSize || ''} onChange={(e) => setForm((f) => ({ ...f, fileSize: e.target.value }))} placeholder="Ex: 2.4 MB" />
+              <input className={inputClass} value={form.tamanhoArquivo || ''} onChange={(e) => setForm((f) => ({ ...f, tamanhoArquivo: e.target.value }))} placeholder="Ex: 2.4 MB" />
             </Field>
             <FileUpload
               label="Arquivo / Documento"
-              currentUrl={form.fileUrl}
-              onUpload={(url) => setForm((f) => ({ ...f, fileUrl: url }))}
+              currentUrl={form.urlArquivo}
+              onUpload={(url) => setForm((f) => ({ ...f, urlArquivo: url }))}
               accept=".pdf,.zip,.docx,.mp4,.webm,image/*"
               hint="PDF, ZIP, DOCX, Vídeo — Máx. 50MB"
             />

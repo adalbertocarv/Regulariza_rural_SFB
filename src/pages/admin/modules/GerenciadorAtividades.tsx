@@ -1,17 +1,17 @@
 import { useState, useEffect, FormEvent } from 'react';
 import { Plus, Pencil, Trash2, Loader2, X } from 'lucide-react';
-import { api, adminApi, Activity } from '../../../lib/api';
+import { api, adminApi, Atividade } from '../../../lib/api';
 import { Modal, ConfirmDelete, FileUpload, Field, inputClass, textareaClass } from './compartilhado';
 
 const ALL_BADGES = ['RECUPERAÇÃO', 'CERCAMENTO', 'MATA ATLÂNTICA', 'CERRADO', 'AMAZÔNIA', 'CAATINGA', 'SEMIARID'];
-const emptyForm: Partial<Activity> = { title: '', description: '', badges: [], targetValue: '', targetLabel: 'PÚBLICO', objective: '', imageUrl: '' };
+const emptyForm: Partial<Atividade> = { titulo: '', descricao: '', insignias: [], valorAlvo: '', rotuloAlvo: 'PÚBLICO', objetivo: '', urlImagem: '' };
 
 export default function GerenciadorAtividades() {
-  const [items, setItems] = useState<Activity[]>([]);
+  const [items, setItems] = useState<Atividade[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
-  const [editing, setEditing] = useState<Activity | null>(null);
-  const [form, setForm] = useState<Partial<Activity>>(emptyForm);
+  const [editing, setEditing] = useState<Atividade | null>(null);
+  const [form, setForm] = useState<Partial<Atividade>>(emptyForm);
   const [saving, setSaving] = useState(false);
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [deleting, setDeleting] = useState(false);
@@ -29,13 +29,13 @@ export default function GerenciadorAtividades() {
   useEffect(() => { loadData(); }, []);
 
   const openCreate = () => { setEditing(null); setForm(emptyForm); setShowModal(true); };
-  const openEdit = (item: Activity) => { setEditing(item); setForm({ ...item }); setShowModal(true); };
+  const openEdit = (item: Atividade) => { setEditing(item); setForm({ ...item }); setShowModal(true); };
   const closeModal = () => { setShowModal(false); setEditing(null); setForm(emptyForm); };
 
   const toggleBadge = (badge: string) => {
     setForm((f) => ({
       ...f,
-      badges: f.badges?.includes(badge) ? f.badges.filter((b) => b !== badge) : [...(f.badges || []), badge],
+      insignias: f.insignias?.includes(badge) ? f.insignias.filter((b) => b !== badge) : [...(f.insignias || []), badge],
     }));
   };
 
@@ -91,17 +91,17 @@ export default function GerenciadorAtividades() {
         <div className="grid md:grid-cols-2 gap-4">
           {items.map((item) => (
             <div key={item.id} className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden hover:shadow-md transition-shadow">
-              {item.imageUrl && (
-                <img src={item.imageUrl} alt={item.title} className="w-full h-36 object-cover" />
+              {item.urlImagem && (
+                <img src={item.urlImagem} alt={item.titulo} className="w-full h-36 object-cover" />
               )}
               <div className="p-5">
                 <div className="flex flex-wrap gap-1.5 mb-3">
-                  {item.badges.map((b) => (
+                  {item.insignias.map((b) => (
                     <span key={b} className="text-xs font-bold px-2 py-0.5 bg-green-100 text-green-700 rounded-full">{b}</span>
                   ))}
                 </div>
-                <h3 className="font-bold text-gray-900 mb-1">{item.title}</h3>
-                <p className="text-sm text-gray-500 line-clamp-2 mb-4">{item.description}</p>
+                <h3 className="font-bold text-gray-900 mb-1">{item.titulo}</h3>
+                <p className="text-sm text-gray-500 line-clamp-2 mb-4">{item.descricao}</p>
                 <div className="flex justify-end gap-2 border-t border-gray-50 pt-3">
                   <button onClick={() => openEdit(item)} className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
                     <Pencil className="w-4 h-4" />
@@ -120,11 +120,11 @@ export default function GerenciadorAtividades() {
         <Modal title={editing ? 'Editar Atividade' : 'Nova Atividade'} onClose={closeModal}>
           <form onSubmit={handleSave} className="space-y-5">
             <Field label="Título" required>
-              <input className={inputClass} value={form.title || ''} onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))} required />
+              <input className={inputClass} value={form.titulo || ''} onChange={(e) => setForm((f) => ({ ...f, titulo: e.target.value }))} required />
             </Field>
 
             <Field label="Descrição">
-              <textarea className={textareaClass} rows={3} value={form.description || ''} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} />
+              <textarea className={textareaClass} rows={3} value={form.descricao || ''} onChange={(e) => setForm((f) => ({ ...f, descricao: e.target.value }))} />
             </Field>
 
             <Field label="Badges">
@@ -135,12 +135,12 @@ export default function GerenciadorAtividades() {
                     type="button"
                     onClick={() => toggleBadge(badge)}
                     className={`text-xs font-bold px-3 py-1.5 rounded-full border transition-colors ${
-                      form.badges?.includes(badge)
+                      form.insignias?.includes(badge)
                         ? 'bg-green-700 text-white border-green-700'
                         : 'border-gray-200 text-gray-600 hover:border-green-400'
                     }`}
                   >
-                    {form.badges?.includes(badge) && <X className="w-3 h-3 inline mr-1" />}
+                    {form.insignias?.includes(badge) && <X className="w-3 h-3 inline mr-1" />}
                     {badge}
                   </button>
                 ))}
@@ -149,21 +149,21 @@ export default function GerenciadorAtividades() {
 
             <div className="grid grid-cols-2 gap-4">
               <Field label="Rótulo (PÚBLICO / ÁREA)">
-                <select className={inputClass} value={form.targetLabel || 'PÚBLICO'} onChange={(e) => setForm((f) => ({ ...f, targetLabel: e.target.value }))}>
+                <select className={inputClass} value={form.rotuloAlvo || 'PÚBLICO'} onChange={(e) => setForm((f) => ({ ...f, rotuloAlvo: e.target.value }))}>
                   <option>PÚBLICO</option>
                   <option>ÁREA</option>
                 </select>
               </Field>
               <Field label="Valor">
-                <input className={inputClass} value={form.targetValue || ''} onChange={(e) => setForm((f) => ({ ...f, targetValue: e.target.value }))} placeholder="Ex: 85 Famílias" />
+                <input className={inputClass} value={form.valorAlvo || ''} onChange={(e) => setForm((f) => ({ ...f, valorAlvo: e.target.value }))} placeholder="Ex: 85 Famílias" />
               </Field>
             </div>
 
             <Field label="Objetivo">
-              <input className={inputClass} value={form.objective || ''} onChange={(e) => setForm((f) => ({ ...f, objective: e.target.value }))} />
+              <input className={inputClass} value={form.objetivo || ''} onChange={(e) => setForm((f) => ({ ...f, objetivo: e.target.value }))} />
             </Field>
 
-            <FileUpload label="Imagem" currentUrl={form.imageUrl} onUpload={(url) => setForm((f) => ({ ...f, imageUrl: url }))} />
+            <FileUpload label="Imagem" currentUrl={form.urlImagem} onUpload={(url) => setForm((f) => ({ ...f, urlImagem: url }))} />
 
             <div className="flex gap-3 pt-2">
               <button type="button" onClick={closeModal} className="flex-1 px-4 py-2.5 border border-gray-200 rounded-xl text-gray-700 hover:bg-gray-50 transition-colors">Cancelar</button>

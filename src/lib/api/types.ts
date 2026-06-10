@@ -1,57 +1,57 @@
-export interface News {
+export interface Noticia {
   id: number;
-  title: string;
-  excerpt?: string;
-  content?: string;
-  category?: string;
-  categoryColor?: string;
-  imageUrl?: string;
-  createdAt: string;
+  titulo: string;
+  resumo?: string;
+  conteudo?: string;
+  categoria?: string;
+  corCategoria?: string;
+  urlImagem?: string;
+  criadoEm: string;
 }
 
-export interface Activity {
+export interface Atividade {
   id: number;
-  title: string;
-  description?: string;
-  badges: string[];
-  targetValue?: string;
-  targetLabel?: string;
-  objective?: string;
-  imageUrl?: string;
-  createdAt: string;
+  titulo: string;
+  descricao?: string;
+  insignias: string[];
+  valorAlvo?: string;
+  rotuloAlvo?: string;
+  objetivo?: string;
+  urlImagem?: string;
+  criadoEm: string;
 }
 
-export interface Testimonial {
+export interface Depoimento {
   id: number;
-  quote?: string;
-  name?: string;
-  role?: string;
-  avatarUrl?: string;
-  createdAt: string;
+  citacao?: string;
+  nome?: string;
+  cargo?: string;
+  urlAvatar?: string;
+  criadoEm: string;
 }
 
-export interface RepositoryDocument {
+export interface DocumentoRepositorio {
   id: number;
-  title: string;
-  description?: string;
-  iconType?: string;
-  fileSize?: string;
-  docType?: string;
-  fileUrl?: string;
-  createdAt: string;
+  titulo: string;
+  descricao?: string;
+  tipoIcone?: string;
+  tamanhoArquivo?: string;
+  tipoDocumento?: string;
+  urlArquivo?: string;
+  criadoEm: string;
 }
 
-export interface DashboardStat {
+export interface EstatisticaDashboard {
   id: number;
-  keyName: string;
-  value?: string;
-  unit?: string;
-  colorClass?: string;
+  nomeChave: string;
+  valor?: string;
+  unidade?: string;
+  classeCor?: string;
 }
 
-export interface Faq {
+export interface PerguntaFrequente {
   id: number;
-  question?: string;
-  answer?: string;
-  orderNum?: number;
+  pergunta?: string;
+  resposta?: string;
+  ordem?: number;
 }

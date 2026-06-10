@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, BarChart3, Users, Eye, Sliders, Loader2 } from 'lucide-react';
-import { api, Activity } from '../lib/api';
+import { api, Atividade } from '../lib/api';
 
 const badgeColors: Record<string, string> = {
   RECUPERAÇÃO: 'bg-yellow-100 text-yellow-700',
@@ -13,7 +13,7 @@ const badgeColors: Record<string, string> = {
 };
 
 export default function Atividades() {
-  const [activities, setActivities] = useState<Activity[]>([]);
+  const [activities, setActivities] = useState<Atividade[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -104,24 +104,24 @@ export default function Atividades() {
                 {activities.map((activity) => (
                   <div key={activity.id} className="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
                     <div className="relative h-64 overflow-hidden">
-                      {activity.imageUrl && <img src={activity.imageUrl} alt={activity.title} className="w-full h-full object-cover" />}
+                      {activity.urlImagem && <img src={activity.urlImagem} alt={activity.titulo} className="w-full h-full object-cover" />}
                       <div className="absolute top-4 left-4 flex flex-wrap gap-2">
-                        {activity.badges.map((badge) => (
+                        {activity.insignias.map((badge) => (
                           <span key={badge} className={`text-xs font-bold px-2.5 py-1 rounded-full ${badgeColors[badge] || 'bg-gray-200 text-gray-700'}`}>{badge}</span>
                         ))}
                       </div>
                     </div>
                     <div className="p-6">
-                      <h3 className="text-lg font-bold text-gray-900 mb-2">{activity.title}</h3>
-                      <p className="text-gray-600 text-sm leading-relaxed mb-6">{activity.description}</p>
+                      <h3 className="text-lg font-bold text-gray-900 mb-2">{activity.titulo}</h3>
+                      <p className="text-gray-600 text-sm leading-relaxed mb-6">{activity.descricao}</p>
                       <div className="grid grid-cols-2 gap-4 pt-4 border-t border-gray-100">
                         <div>
-                          <div className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">{activity.targetLabel || 'PÚBLICO'}</div>
-                          <div className="text-lg font-bold text-green-700">{activity.targetValue}</div>
+                          <div className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">{activity.rotuloAlvo || 'PÚBLICO'}</div>
+                          <div className="text-lg font-bold text-green-700">{activity.valorAlvo}</div>
                         </div>
                         <div>
                           <div className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">OBJETIVO</div>
-                          <div className="text-lg font-bold text-gray-900">{activity.objective}</div>
+                          <div className="text-lg font-bold text-gray-900">{activity.objetivo}</div>
                         </div>
                       </div>
                       <button className="mt-6 inline-flex items-center gap-1.5 text-green-700 font-semibold text-sm hover:gap-2.5 transition-all">

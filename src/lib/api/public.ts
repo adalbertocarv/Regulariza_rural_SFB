@@ -1,5 +1,5 @@
 import { request } from './client';
-import { News, Activity, Testimonial, RepositoryDocument, DashboardStat, Faq } from './types';
+import { Noticia, Atividade, Depoimento, DocumentoRepositorio, EstatisticaDashboard, PerguntaFrequente } from './types';
 
 export const api = {
   // News
@@ -9,11 +9,11 @@ export const api = {
         .filter(([, v]) => v !== undefined)
         .map(([k, v]) => [k, String(v)])
     ).toString();
-    return request<{ items: News[]; total: number; page: number; totalPages: number }>(
-      `/news${qs ? `?${qs}` : ''}`
+    return request<{ items: Noticia[]; total: number; page: number; totalPages: number }>(
+      `/noticias${qs ? `?${qs}` : ''}`
     );
   },
-  getNewsById: (id: number) => request<News>(`/news/${id}`),
+  getNewsById: (id: number) => request<Noticia>(`/noticias/${id}`),
 
   // Activities
   getActivities: (params?: { page?: number; limit?: number }) => {
@@ -22,20 +22,20 @@ export const api = {
         .filter(([, v]) => v !== undefined)
         .map(([k, v]) => [k, String(v)])
     ).toString();
-    return request<{ items: Activity[]; total: number; page: number; totalPages: number }>(
-      `/activities${qs ? `?${qs}` : ''}`
+    return request<{ items: Atividade[]; total: number; page: number; totalPages: number }>(
+      `/atividades${qs ? `?${qs}` : ''}`
     );
   },
 
   // Testimonials
-  getTestimonials: () => request<Testimonial[]>('/testimonials'),
+  getTestimonials: () => request<Depoimento[]>('/depoimentos'),
 
   // Documents
-  getDocuments: () => request<RepositoryDocument[]>('/documents'),
+  getDocuments: () => request<DocumentoRepositorio[]>('/documentos'),
 
   // Stats
-  getStats: () => request<DashboardStat[]>('/stats'),
+  getStats: () => request<EstatisticaDashboard[]>('/estatisticas'),
 
   // FAQs
-  getFaqs: () => request<Faq[]>('/faqs'),
+  getFaqs: () => request<PerguntaFrequente[]>('/perguntas'),
 };

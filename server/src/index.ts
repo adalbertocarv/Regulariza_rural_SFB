@@ -3,13 +3,13 @@ import express from 'express';
 import cors from 'cors';
 import path from 'path';
 
-import authRoutes from './routes/auth';
-import newsRoutes from './routes/news';
-import activitiesRoutes from './routes/activities';
-import testimonialsRoutes from './routes/testimonials';
-import documentsRoutes from './routes/documents';
-import statsRoutes from './routes/stats';
-import faqsRoutes from './routes/faqs';
+import authRoutes from './routes/autenticacao';
+import newsRoutes from './routes/noticias';
+import activitiesRoutes from './routes/atividades';
+import testimonialsRoutes from './routes/depoimentos';
+import documentsRoutes from './routes/documentos';
+import statsRoutes from './routes/estatisticas';
+import faqsRoutes from './routes/perguntas';
 import uploadRoutes from './routes/upload';
 
 const app = express();
@@ -27,13 +27,13 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
 
 // ── Routes ─────────────────────────────────────────────────────────────────────
-app.use('/api/auth', authRoutes);
-app.use('/api/news', newsRoutes);
-app.use('/api/activities', activitiesRoutes);
-app.use('/api/testimonials', testimonialsRoutes);
-app.use('/api/documents', documentsRoutes);
-app.use('/api/stats', statsRoutes);
-app.use('/api/faqs', faqsRoutes);
+app.use('/api/autenticacao', authRoutes);
+app.use('/api/noticias', newsRoutes);
+app.use('/api/atividades', activitiesRoutes);
+app.use('/api/depoimentos', testimonialsRoutes);
+app.use('/api/documentos', documentsRoutes);
+app.use('/api/estatisticas', statsRoutes);
+app.use('/api/perguntas', faqsRoutes);
 app.use('/api/upload', uploadRoutes);
 
 // ── Health Check ───────────────────────────────────────────────────────────────

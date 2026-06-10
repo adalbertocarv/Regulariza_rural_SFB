@@ -1,6 +1,6 @@
 import { useState, useEffect, FormEvent } from 'react';
 import { Plus, Pencil, Trash2, Loader2, AlertCircle } from 'lucide-react';
-import { api, adminApi, News } from '../../../lib/api';
+import { api, adminApi, Noticia } from '../../../lib/api';
 import { Modal, ConfirmDelete, FileUpload, Field, inputClass, textareaClass, selectClass } from './compartilhado';
 
 const CATEGORIES = [
@@ -15,15 +15,15 @@ const CATEGORIES = [
   { label: 'Evento', value: 'EVENTO', color: 'bg-teal-100 text-teal-700' },
 ];
 
-const emptyForm: Partial<News> = { title: '', excerpt: '', content: '', category: 'LEGISLAÇÃO', categoryColor: 'bg-yellow-100 text-yellow-700', imageUrl: '' };
+const emptyForm: Partial<Noticia> = { titulo: '', resumo: '', conteudo: '', categoria: 'LEGISLAÇÃO', corCategoria: 'bg-yellow-100 text-yellow-700', urlImagem: '' };
 
 export default function GerenciadorNoticias() {
-  const [items, setItems] = useState<News[]>([]);
+  const [items, setItems] = useState<Noticia[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [showModal, setShowModal] = useState(false);
-  const [editing, setEditing] = useState<News | null>(null);
-  const [form, setForm] = useState<Partial<News>>(emptyForm);
+  const [editing, setEditing] = useState<Noticia | null>(null);
+  const [form, setForm] = useState<Partial<Noticia>>(emptyForm);
   const [saving, setSaving] = useState(false);
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [deleting, setDeleting] = useState(false);
@@ -47,12 +47,12 @@ export default function GerenciadorNoticias() {
   useEffect(() => { loadData(); }, [page]);
 
   const openCreate = () => { setEditing(null); setForm(emptyForm); setShowModal(true); };
-  const openEdit = (item: News) => { setEditing(item); setForm(item); setShowModal(true); };
+  const openEdit = (item: Noticia) => { setEditing(item); setForm(item); setShowModal(true); };
   const closeModal = () => { setShowModal(false); setEditing(null); setForm(emptyForm); };
 
   const handleCategoryChange = (cat: string) => {
     const found = CATEGORIES.find((c) => c.value === cat);
-    setForm((f) => ({ ...f, category: cat, categoryColor: found?.color || '' }));
+    setForm((f) => ({ ...f, categoria: cat, corCategoria: found?.color || '' }));
   };
 
   const handleSave = async (e: FormEvent) => {
@@ -131,25 +131,25 @@ export default function GerenciadorNoticias() {
                   {items.map((item) => (
                     <tr key={item.id} className="hover:bg-gray-50 transition-colors">
                       <td className="px-5 py-3">
-                        {item.imageUrl ? (
-                          <img src={item.imageUrl} alt="" className="w-12 h-10 object-cover rounded-lg" />
+                        {item.urlImagem ? (
+                          <img src={item.urlImagem} alt="" className="w-12 h-10 object-cover rounded-lg" />
                         ) : (
                           <div className="w-12 h-10 bg-gray-100 rounded-lg" />
                         )}
                       </td>
                       <td className="px-5 py-3 max-w-xs">
-                        <div className="font-medium text-gray-900 truncate">{item.title}</div>
-                        <div className="text-gray-400 text-xs truncate">{item.excerpt}</div>
+                        <div className="font-medium text-gray-900 truncate">{item.titulo}</div>
+                        <div className="text-gray-400 text-xs truncate">{item.resumo}</div>
                       </td>
                       <td className="px-5 py-3">
-                        {item.category && (
-                          <span className={`text-xs font-bold px-2 py-0.5 rounded ${item.categoryColor || 'bg-gray-100 text-gray-600'}`}>
-                            {item.category}
+                        {item.categoria && (
+                          <span className={`text-xs font-bold px-2 py-0.5 rounded ${item.corCategoria || 'bg-gray-100 text-gray-600'}`}>
+                            {item.categoria}
                           </span>
                         )}
                       </td>
                       <td className="px-5 py-3 text-gray-500">
-                        {new Date(item.createdAt).toLocaleDateString('pt-BR')}
+                        {new Date(item.criadoEm).toLocaleDateString('pt-BR')}
                       </td>
                       <td className="px-5 py-3 text-right">
                         <div className="flex items-center justify-end gap-1">
@@ -202,8 +202,8 @@ export default function GerenciadorNoticias() {
             <Field label="Título" required>
               <input
                 className={inputClass}
-                value={form.title || ''}
-                onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
+                value={form.titulo || ''}
+                onChange={(e) => setForm((f) => ({ ...f, titulo: e.target.value }))}
                 required
               />
             </Field>
@@ -211,7 +211,7 @@ export default function GerenciadorNoticias() {
             <Field label="Categoria">
               <select
                 className={selectClass}
-                value={form.category || ''}
+                value={form.categoria || ''}
                 onChange={(e) => handleCategoryChange(e.target.value)}
               >
                 {CATEGORIES.map((c) => (
@@ -224,8 +224,8 @@ export default function GerenciadorNoticias() {
               <textarea
                 className={textareaClass}
                 rows={2}
-                value={form.excerpt || ''}
-                onChange={(e) => setForm((f) => ({ ...f, excerpt: e.target.value }))}
+                value={form.resumo || ''}
+                onChange={(e) => setForm((f) => ({ ...f, resumo: e.target.value }))}
               />
             </Field>
 
@@ -233,15 +233,15 @@ export default function GerenciadorNoticias() {
               <textarea
                 className={textareaClass}
                 rows={5}
-                value={form.content || ''}
-                onChange={(e) => setForm((f) => ({ ...f, content: e.target.value }))}
+                value={form.conteudo || ''}
+                onChange={(e) => setForm((f) => ({ ...f, conteudo: e.target.value }))}
               />
             </Field>
 
             <FileUpload
               label="Imagem"
-              currentUrl={form.imageUrl}
-              onUpload={(url) => setForm((f) => ({ ...f, imageUrl: url }))}
+              currentUrl={form.urlImagem}
+              onUpload={(url) => setForm((f) => ({ ...f, urlImagem: url }))}
               hint="JPG, PNG, WebP — Máx. 10MB"
             />
 

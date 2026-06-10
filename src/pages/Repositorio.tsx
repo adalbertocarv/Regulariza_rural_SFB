@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Search, Download, Eye, Share2, FileText, MapPin, Mail, Phone, Loader2 } from 'lucide-react';
-import { api, RepositoryDocument } from '../lib/api';
+import { api, DocumentoRepositorio } from '../lib/api';
 
 const iconMap: Record<string, React.ReactNode> = {
   pdf: <div className="w-12 h-12 rounded-lg bg-green-100 flex items-center justify-center"><FileText className="w-6 h-6 text-green-700" /></div>,
@@ -13,7 +13,7 @@ const iconMap: Record<string, React.ReactNode> = {
 const tabs = ['Documentos', 'Fotos', 'Vídeos', 'Entrevistas', 'Manual da Marca', 'Blog/Matérias'];
 
 export default function Repositorio() {
-  const [documents, setDocuments] = useState<RepositoryDocument[]>([]);
+  const [documents, setDocuments] = useState<DocumentoRepositorio[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('Documentos');
   const [search, setSearch] = useState('');
@@ -22,7 +22,7 @@ export default function Repositorio() {
     api.getDocuments().then(setDocuments).finally(() => setLoading(false));
   }, []);
 
-  const filtered = documents.filter((d) => d.title.toLowerCase().includes(search.toLowerCase()));
+  const filtered = documents.filter((d) => d.titulo.toLowerCase().includes(search.toLowerCase()));
 
   return (
     <main className="pt-16 bg-white">
@@ -65,22 +65,22 @@ export default function Repositorio() {
               <div className="grid md:grid-cols-3 gap-6 mb-8">
                 {filtered.map((doc) => (
                   <div key={doc.id} className="bg-white rounded-xl p-6 border border-gray-100 hover:shadow-md transition-shadow flex flex-col">
-                    <div className="mb-4">{iconMap[doc.iconType || 'pdf'] || iconMap.pdf}</div>
+                    <div className="mb-4">{iconMap[doc.tipoIcone || 'pdf'] || iconMap.pdf}</div>
                     <div className="flex-1 mb-4">
-                      <p className="text-xs text-gray-500 font-bold mb-2">{doc.fileSize}</p>
-                      <h3 className="font-bold text-gray-900 mb-2 text-base leading-snug">{doc.title}</h3>
-                      <p className="text-sm text-gray-600 leading-relaxed">{doc.description}</p>
+                      <p className="text-xs text-gray-500 font-bold mb-2">{doc.tamanhoArquivo}</p>
+                      <h3 className="font-bold text-gray-900 mb-2 text-base leading-snug">{doc.titulo}</h3>
+                      <p className="text-sm text-gray-600 leading-relaxed">{doc.descricao}</p>
                     </div>
-                    {doc.docType === 'DOWNLOAD' ? (
-                      <a href={doc.fileUrl || '#'} download className="w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2.5 rounded-lg flex items-center justify-center gap-2 transition-colors">
+                    {doc.tipoDocumento === 'DOWNLOAD' ? (
+                      <a href={doc.urlArquivo || '#'} download className="w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2.5 rounded-lg flex items-center justify-center gap-2 transition-colors">
                         <Download className="w-4 h-4" /> Download
                       </a>
-                    ) : doc.docType === 'LINK' ? (
-                      <a href={doc.fileUrl || '#'} target="_blank" rel="noopener noreferrer" className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 rounded-lg flex items-center justify-center gap-2 transition-colors">
+                    ) : doc.tipoDocumento === 'LINK' ? (
+                      <a href={doc.urlArquivo || '#'} target="_blank" rel="noopener noreferrer" className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 rounded-lg flex items-center justify-center gap-2 transition-colors">
                         <FileText className="w-4 h-4" /> Ler Matéria
                       </a>
                     ) : (
-                      <a href={doc.fileUrl || '#'} target="_blank" rel="noopener noreferrer" className="w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2.5 rounded-lg flex items-center justify-center gap-2 transition-colors">
+                      <a href={doc.urlArquivo || '#'} target="_blank" rel="noopener noreferrer" className="w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2.5 rounded-lg flex items-center justify-center gap-2 transition-colors">
                         <Eye className="w-4 h-4" /> Assistir
                       </a>
                     )}

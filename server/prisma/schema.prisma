@@ -10,83 +10,83 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id           Int      @id @default(autoincrement())
-  email        String   @unique
-  passwordHash String   @map("password_hash")
-  name         String?
-  createdAt    DateTime @default(now()) @map("created_at")
-
-  @@map("users")
-}
-
-model News {
-  id            Int      @id @default(autoincrement())
-  title         String   @db.VarChar(255)
-  excerpt       String?  @db.Text
-  content       String?  @db.Text
-  category      String?  @db.VarChar(100)
-  categoryColor String?  @db.VarChar(50) @map("category_color")
-  imageUrl      String?  @db.VarChar(500) @map("image_url")
-  createdAt     DateTime @default(now()) @map("created_at")
-
-  @@map("news")
-}
-
-model Activity {
-  id          Int      @id @default(autoincrement())
-  title       String   @db.VarChar(255)
-  description String?  @db.Text
-  badges      String[]
-  targetValue String?  @db.VarChar(100) @map("target_value")
-  targetLabel String?  @db.VarChar(100) @map("target_label")
-  objective   String?  @db.VarChar(255)
-  imageUrl    String?  @db.VarChar(500) @map("image_url")
-  createdAt   DateTime @default(now()) @map("created_at")
-
-  @@map("activities")
-}
-
-model Testimonial {
+model Usuario {
   id        Int      @id @default(autoincrement())
-  quote     String?  @db.Text
-  name      String?  @db.VarChar(100)
-  role      String?  @db.VarChar(100)
-  avatarUrl String?  @db.VarChar(500) @map("avatar_url")
-  createdAt DateTime @default(now()) @map("created_at")
+  email     String   @unique
+  senhaHash String   @map("senha_hash")
+  nome      String?
+  criadoEm  DateTime @default(now()) @map("criado_em")
 
-  @@map("testimonials")
+  @@map("usuarios")
 }
 
-model RepositoryDocument {
-  id          Int      @id @default(autoincrement())
-  title       String   @db.VarChar(255)
-  description String?  @db.Text
-  iconType    String?  @db.VarChar(50) @map("icon_type")
-  fileSize    String?  @db.VarChar(50) @map("file_size")
-  docType     String?  @db.VarChar(50) @map("doc_type")
-  fileUrl     String?  @db.VarChar(500) @map("file_url")
-  createdAt   DateTime @default(now()) @map("created_at")
+model Noticia {
+  id           Int      @id @default(autoincrement())
+  titulo       String   @db.VarChar(255)
+  resumo       String?  @db.Text
+  conteudo     String?  @db.Text
+  categoria    String?  @db.VarChar(100)
+  corCategoria String?  @db.VarChar(50) @map("cor_categoria")
+  urlImagem    String?  @db.VarChar(500) @map("url_imagem")
+  criadoEm     DateTime @default(now()) @map("criado_em")
 
-  @@map("repository_documents")
+  @@map("noticias")
 }
 
-model DashboardStat {
+model Atividade {
   id         Int      @id @default(autoincrement())
-  keyName    String   @unique @db.VarChar(100) @map("key_name")
-  value      String?  @db.VarChar(50)
-  unit       String?  @db.VarChar(20)
-  colorClass String?  @db.VarChar(50) @map("color_class")
-  updatedAt  DateTime @updatedAt @map("updated_at")
+  titulo     String   @db.VarChar(255)
+  descricao  String?  @db.Text
+  insignias  String[]
+  valorAlvo  String?  @db.VarChar(100) @map("valor_alvo")
+  rotuloAlvo String?  @db.VarChar(100) @map("rotulo_alvo")
+  objetivo   String?  @db.VarChar(255)
+  urlImagem  String?  @db.VarChar(500) @map("url_imagem")
+  criadoEm   DateTime @default(now()) @map("criado_em")
 
-  @@map("dashboard_stats")
+  @@map("atividades")
 }
 
-model Faq {
-  id       Int     @id @default(autoincrement())
-  question String? @db.Text
-  answer   String? @db.Text
-  orderNum Int?    @map("order_num")
+model Depoimento {
+  id        Int      @id @default(autoincrement())
+  citacao   String?  @db.Text
+  nome      String?  @db.VarChar(100)
+  cargo     String?  @db.VarChar(100)
+  urlAvatar String?  @db.VarChar(500) @map("url_avatar")
+  criadoEm  DateTime @default(now()) @map("criado_em")
 
-  @@map("faqs")
+  @@map("depoimentos")
+}
+
+model DocumentoRepositorio {
+  id             Int      @id @default(autoincrement())
+  titulo         String   @db.VarChar(255)
+  descricao      String?  @db.Text
+  tipoIcone      String?  @db.VarChar(50) @map("tipo_icone")
+  tamanhoArquivo String?  @db.VarChar(50) @map("tamanho_arquivo")
+  tipoDocumento  String?  @db.VarChar(50) @map("tipo_documento")
+  urlArquivo     String?  @db.VarChar(500) @map("url_arquivo")
+  criadoEm       DateTime @default(now()) @map("criado_em")
+
+  @@map("documentos_repositorio")
+}
+
+model EstatisticaDashboard {
+  id           Int      @id @default(autoincrement())
+  nomeChave    String   @unique @db.VarChar(100) @map("nome_chave")
+  valor        String?  @db.VarChar(50)
+  unidade      String?  @db.VarChar(20)
+  classeCor    String?  @db.VarChar(50) @map("classe_cor")
+  atualizadoEm DateTime @updatedAt @map("atualizado_em")
+
+  @@map("estatisticas_dashboard")
+}
+
+model PerguntaFrequente {
+  id       Int     @id @default(autoincrement())
+  pergunta String? @db.Text
+  resposta String? @db.Text
+  ordem    Int?
+
+  @@map("perguntas_frequentes")
 }

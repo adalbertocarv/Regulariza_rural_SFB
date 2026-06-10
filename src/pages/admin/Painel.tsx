@@ -28,13 +28,13 @@ function Overview({
   user,
   onSelectSection,
 }: {
-  user: { name: string | null; email: string };
+  user: { nome: string | null; email: string };
   onSelectSection: (section: Section) => void;
 }) {
   return (
     <div>
       <h2 className="text-2xl font-bold text-gray-900 mb-2">
-        Olá, {user.name || user.email.split('@')[0]}! 👋
+        Olá, {user.nome || user.email.split('@')[0]}! 👋
       </h2>
       <p className="text-gray-500 mb-8">Bem-vindo ao painel administrativo do Regulariza Rural.</p>
 
@@ -144,10 +144,10 @@ export default function Painel() {
         <div className="p-4 border-t border-gray-100">
           <div className="flex items-center gap-3 mb-3 px-2">
             <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center text-green-700 font-bold text-sm">
-              {(user?.name || user?.email || 'A')[0].toUpperCase()}
+              {(user?.nome || user?.email || 'A')[0].toUpperCase()}
             </div>
             <div className="flex-1 min-w-0">
-              <div className="text-sm font-medium text-gray-900 truncate">{user?.name || 'Admin'}</div>
+              <div className="text-sm font-medium text-gray-900 truncate">{user?.nome || 'Admin'}</div>
               <div className="text-xs text-gray-400 truncate">{user?.email}</div>
             </div>
           </div>

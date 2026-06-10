@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { ArrowRight, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
-import { api, News } from '../lib/api';
+import { api, Noticia } from '../lib/api';
 
 const CATEGORIES = [
   'CAR & Regularização',
@@ -17,7 +17,7 @@ const CAT_MAP: Record<string, string[]> = {
 };
 
 export default function Noticias() {
-  const [items, setItems] = useState<News[]>([]);
+  const [items, setItems] = useState<Noticia[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -41,7 +41,7 @@ export default function Noticias() {
     ? items
     : items.filter((item) =>
         selectedCategories.some((cat) =>
-          (CAT_MAP[cat] || []).some((apiCat) => item.category?.toUpperCase().includes(apiCat))
+          (CAT_MAP[cat] || []).some((apiCat) => item.categoria?.toUpperCase().includes(apiCat))
         )
       );
 
@@ -91,21 +91,21 @@ export default function Noticias() {
                   {filtered.map((item) => (
                     <article key={item.id} className="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-md transition-shadow group cursor-pointer">
                       <div className="overflow-hidden h-48 bg-gray-100">
-                        {item.imageUrl && (
-                          <img src={item.imageUrl} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                        {item.urlImagem && (
+                          <img src={item.urlImagem} alt={item.titulo} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                         )}
                       </div>
                       <div className="p-5">
                         <div className="flex items-center justify-between mb-2">
-                          {item.category && (
-                            <span className={`text-xs font-bold tracking-widest px-2 py-0.5 rounded ${item.categoryColor || 'bg-gray-100 text-gray-600'}`}>
-                              {item.category}
+                          {item.categoria && (
+                            <span className={`text-xs font-bold tracking-widest px-2 py-0.5 rounded ${item.corCategoria || 'bg-gray-100 text-gray-600'}`}>
+                              {item.categoria}
                             </span>
                           )}
-                          <span className="text-xs text-gray-400">{new Date(item.createdAt).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
+                          <span className="text-xs text-gray-400">{new Date(item.criadoEm).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
                         </div>
-                        <h3 className="font-bold text-gray-900 text-base mb-2 leading-snug group-hover:text-green-700 transition-colors">{item.title}</h3>
-                        <p className="text-gray-500 text-sm leading-relaxed mb-4 line-clamp-2">{item.excerpt}</p>
+                        <h3 className="font-bold text-gray-900 text-base mb-2 leading-snug group-hover:text-green-700 transition-colors">{item.titulo}</h3>
+                        <p className="text-gray-500 text-sm leading-relaxed mb-4 line-clamp-2">{item.resumo}</p>
                         <button className="inline-flex items-center gap-1.5 text-green-700 font-medium text-sm hover:gap-2.5 transition-all">
                           Ler Mais <ArrowRight className="w-3.5 h-3.5" />
                         </button>

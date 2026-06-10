@@ -8,7 +8,7 @@ import { requireAuth, AuthRequest } from '../middleware/auth';
 const router = Router();
 const prisma = new PrismaClient();
 
-// POST /api/auth/login
+// POST /api/autenticacao/login
 router.post(
   '/login',
   [
@@ -24,13 +24,13 @@ router.post(
 
     const { email, password } = req.body;
 
-    const user = await prisma.user.findUnique({ where: { email } });
+    const user = await prisma.usuario.findUnique({ where: { email } });
     if (!user) {
       res.status(401).json({ error: 'Credenciais inválidas' });
       return;
     }
 
-    const validPassword = await bcrypt.compare(password, user.passwordHash);
+    const validPassword = await bcrypt.compare(password, user.senhaHash);
     if (!validPassword) {
       res.status(401).json({ error: 'Credenciais inválidas' });
       return;
@@ -42,16 +42,16 @@ router.post(
 
     res.json({
       token,
-      user: { id: user.id, email: user.email, name: user.name },
+      user: { id: user.id, email: user.email, nome: user.nome },
     });
   }
 );
 
-// GET /api/auth/me — returns logged-in user data
+// GET /api/autenticacao/me — returns logged-in user data
 router.get('/me', requireAuth, async (req: AuthRequest, res: Response): Promise<void> => {
-  const user = await prisma.user.findUnique({
+  const user = await prisma.usuario.findUnique({
     where: { id: req.userId },
-    select: { id: true, email: true, name: true, createdAt: true },
+    select: { id: true, email: true, nome: true, criadoEm: true },
   });
 
   if (!user) {

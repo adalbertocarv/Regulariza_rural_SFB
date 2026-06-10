@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Loader2, Save, Check } from 'lucide-react';
-import { api, adminApi, DashboardStat } from '../../../lib/api';
+import { api, adminApi, EstatisticaDashboard } from '../../../lib/api';
 
 const STAT_LABELS: Record<string, string> = {
   hectares_preservados: 'Hectares Preservados (Home)',
@@ -13,19 +13,19 @@ const STAT_LABELS: Record<string, string> = {
 };
 
 export default function GerenciadorEstatisticas() {
-  const [stats, setStats] = useState<DashboardStat[]>([]);
+  const [stats, setStats] = useState<EstatisticaDashboard[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState<string | null>(null);
   const [saved, setSaved] = useState<string | null>(null);
-  const [edits, setEdits] = useState<Record<string, { value: string; unit: string }>>({});
+  const [edits, setEdits] = useState<Record<string, { valor: string; unidade: string }>>({});
 
   const loadData = async () => {
     setLoading(true);
     try {
       const data = await api.getStats();
       setStats(data);
-      const initial: Record<string, { value: string; unit: string }> = {};
-      data.forEach((s) => { initial[s.keyName] = { value: s.value || '', unit: s.unit || '' }; });
+      const initial: Record<string, { valor: string; unidade: string }> = {};
+      data.forEach((s) => { initial[s.nomeChave] = { valor: s.valor || '', unidade: s.unidade || '' }; });
       setEdits(initial);
     } finally {
       setLoading(false);
@@ -34,11 +34,11 @@ export default function GerenciadorEstatisticas() {
 
   useEffect(() => { loadData(); }, []);
 
-  const handleSave = async (keyName: string) => {
-    setSaving(keyName);
+  const handleSave = async (nomeChave: string) => {
+    setSaving(nomeChave);
     try {
-      await adminApi.updateStat(keyName, edits[keyName]);
-      setSaved(keyName);
+      await adminApi.updateStat(nomeChave, edits[nomeChave]);
+      setSaved(nomeChave);
       setTimeout(() => setSaved(null), 2000);
     } catch (e: unknown) {
       alert(e instanceof Error ? e.message : 'Erro ao salvar');
@@ -63,25 +63,25 @@ export default function GerenciadorEstatisticas() {
               <div className="flex items-center gap-4">
                 <div className="flex-1">
                   <label className="block text-sm font-semibold text-gray-700 mb-1">
-                    {STAT_LABELS[stat.keyName] || stat.keyName}
+                    {STAT_LABELS[stat.nomeChave] || stat.nomeChave}
                   </label>
-                  <div className="text-xs text-gray-400 font-mono mb-3">key: {stat.keyName}</div>
+                  <div className="text-xs text-gray-400 font-mono mb-3">key: {stat.nomeChave}</div>
                   <div className="flex gap-3">
                     <div className="flex-1">
                       <label className="text-xs text-gray-500 mb-1 block">Valor</label>
                       <input
-                        id={`stat-${stat.keyName}-value`}
+                        id={`stat-${stat.nomeChave}-value`}
                         className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
-                        value={edits[stat.keyName]?.value || ''}
-                        onChange={(e) => setEdits((prev) => ({ ...prev, [stat.keyName]: { ...prev[stat.keyName], value: e.target.value } }))}
+                        value={edits[stat.nomeChave]?.valor || ''}
+                        onChange={(e) => setEdits((prev) => ({ ...prev, [stat.nomeChave]: { ...prev[stat.nomeChave], valor: e.target.value } }))}
                       />
                     </div>
                     <div className="w-28">
                       <label className="text-xs text-gray-500 mb-1 block">Unidade</label>
                       <input
                         className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
-                        value={edits[stat.keyName]?.unit || ''}
-                        onChange={(e) => setEdits((prev) => ({ ...prev, [stat.keyName]: { ...prev[stat.keyName], unit: e.target.value } }))}
+                        value={edits[stat.nomeChave]?.unidade || ''}
+                        onChange={(e) => setEdits((prev) => ({ ...prev, [stat.nomeChave]: { ...prev[stat.nomeChave], unidade: e.target.value } }))}
                         placeholder="ha, %, ..."
                       />
                     </div>
@@ -89,17 +89,17 @@ export default function GerenciadorEstatisticas() {
                 </div>
 
                 <button
-                  onClick={() => handleSave(stat.keyName)}
-                  disabled={saving === stat.keyName}
+                  onClick={() => handleSave(stat.nomeChave)}
+                  disabled={saving === stat.nomeChave}
                   className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all ${
-                    saved === stat.keyName
+                    saved === stat.nomeChave
                       ? 'bg-green-100 text-green-700'
                       : 'bg-green-700 hover:bg-green-800 text-white'
                   } disabled:opacity-60`}
                 >
-                  {saving === stat.keyName ? (
+                  {saving === stat.nomeChave ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : saved === stat.keyName ? (
+                  ) : saved === stat.nomeChave ? (
                     <><Check className="w-4 h-4" /> Salvo!</>
                   ) : (
                     <><Save className="w-4 h-4" /> Salvar</>

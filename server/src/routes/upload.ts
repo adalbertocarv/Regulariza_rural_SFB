@@ -5,21 +5,9 @@ import fs from 'fs';
 import { requireAuth } from '../middleware/auth';
 
 const router = Router();
+import { StorageService } from '../lib/storage';
 
-// Ensure uploads directory exists
-const uploadsDir = path.join(__dirname, '..', '..', 'uploads');
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
-}
-
-const storage = multer.diskStorage({
-  destination: (_req, _file, cb) => cb(null, uploadsDir),
-  filename: (_req, file, cb) => {
-    const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
-    const ext = path.extname(file.originalname);
-    cb(null, `${uniqueSuffix}${ext}`);
-  },
-});
+const storage = multer.memoryStorage();
 
 const fileFilter = (_req: Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
   const allowedTypes = [
@@ -45,22 +33,35 @@ const upload = multer({
 });
 
 // POST /api/upload — protected
-router.post('/', requireAuth, upload.single('file'), (req: Request, res: Response): void => {
-  if (!req.file) {
-    res.status(400).json({ error: 'Nenhum arquivo enviado' });
-    return;
+router.post(
+  '/',
+  requireAuth,
+  upload.single('file'),
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      if (!req.file) {
+        res.status(400).json({ error: 'Nenhum arquivo enviado' });
+        return;
+      }
+
+      const result = await StorageService.upload(
+        req.file.buffer,
+        req.file.originalname,
+        req.file.mimetype
+      );
+
+      res.json({
+        url: result.url,
+        filename: result.filename,
+        originalName: req.file.originalname,
+        size: req.file.size,
+        mimetype: req.file.mimetype,
+      });
+    } catch (error: unknown) {
+      console.error('❌ Erro no upload:', error);
+      res.status(500).json({ error: error instanceof Error ? error.message : 'Erro interno ao realizar upload' });
+    }
   }
-
-  const baseUrl = process.env.UPLOAD_BASE_URL || `http://localhost:${process.env.PORT || 3001}`;
-  const fileUrl = `${baseUrl}/uploads/${req.file.filename}`;
-
-  res.json({
-    url: fileUrl,
-    filename: req.file.filename,
-    originalName: req.file.originalname,
-    size: req.file.size,
-    mimetype: req.file.mimetype,
-  });
-});
+);
 
 export default router;

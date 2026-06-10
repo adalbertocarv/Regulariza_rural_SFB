@@ -4,7 +4,7 @@ import {
   ChevronDown, ArrowRight, Mountain, Users, CheckCircle, FileText,
   Quote, Loader2,
 } from 'lucide-react';
-import { api, News, Activity, Testimonial, DashboardStat } from '../lib/api';
+import { api, Noticia, Atividade, Depoimento, EstatisticaDashboard } from '../lib/api';
 
 const STAT_ICON_MAP: Record<string, React.ElementType> = {
   hectares_preservados: Mountain,
@@ -45,10 +45,10 @@ function LoadingSpinner() {
 }
 
 export default function Inicio() {
-  const [stats, setStats] = useState<DashboardStat[]>([]);
-  const [news, setNews] = useState<News[]>([]);
-  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
-  const [activities, setActivities] = useState<Activity[]>([]);
+  const [stats, setStats] = useState<EstatisticaDashboard[]>([]);
+  const [news, setNews] = useState<Noticia[]>([]);
+  const [testimonials, setTestimonials] = useState<Depoimento[]>([]);
+  const [activities, setActivities] = useState<Atividade[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -65,7 +65,7 @@ export default function Inicio() {
     }).finally(() => setLoading(false));
   }, []);
 
-  const homeStats = stats.filter((s) => STAT_LABELS_HOME.includes(s.keyName));
+  const homeStats = stats.filter((s) => STAT_LABELS_HOME.includes(s.nomeChave));
   const newsCards = news.slice(0, 3);
   const newsText = news.slice(3, 6);
 
@@ -119,12 +119,12 @@ export default function Inicio() {
           {loading ? <LoadingSpinner /> : (
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
               {homeStats.map((stat) => {
-                const Icon = STAT_ICON_MAP[stat.keyName] || FileText;
+                const Icon = STAT_ICON_MAP[stat.nomeChave] || FileText;
                 return (
-                  <div key={stat.keyName} className="bg-gray-50 rounded-xl p-7 hover:shadow-md transition-shadow border border-gray-100">
+                  <div key={stat.nomeChave} className="bg-gray-50 rounded-xl p-7 hover:shadow-md transition-shadow border border-gray-100">
                     <Icon className="w-7 h-7 text-green-600 mb-4" />
-                    <div className="text-3xl font-bold text-gray-900">{stat.value}{stat.unit}</div>
-                    <div className="text-xs font-semibold tracking-widest text-gray-500 mt-1 uppercase">{stat.keyName.replace(/_/g, ' ')}</div>
+                    <div className="text-3xl font-bold text-gray-900">{stat.valor}{stat.unidade}</div>
+                    <div className="text-xs font-semibold tracking-widest text-gray-500 mt-1 uppercase">{stat.nomeChave.replace(/_/g, ' ')}</div>
                   </div>
                 );
               })}
@@ -155,14 +155,14 @@ export default function Inicio() {
               <div className="grid md:grid-cols-3 gap-6 mb-8">
                 {newsCards.map((item) => (
                   <article key={item.id} className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow border border-gray-100">
-                    {item.imageUrl && <img src={item.imageUrl} alt={item.title} className="w-full h-48 object-cover" />}
+                    {item.urlImagem && <img src={item.urlImagem} alt={item.titulo} className="w-full h-48 object-cover" />}
                     <div className="p-5">
-                      {item.category && (
-                        <span className={`text-xs font-bold tracking-wider px-2 py-0.5 rounded ${item.categoryColor || 'bg-gray-100 text-gray-600'}`}>{item.category}</span>
+                      {item.categoria && (
+                        <span className={`text-xs font-bold tracking-wider px-2 py-0.5 rounded ${item.corCategoria || 'bg-gray-100 text-gray-600'}`}>{item.categoria}</span>
                       )}
-                      <h3 className="font-bold text-gray-900 mt-3 mb-2 leading-snug">{item.title}</h3>
-                      <p className="text-gray-500 text-sm leading-relaxed">{item.excerpt}</p>
-                      <p className="text-xs text-gray-400 mt-4">{new Date(item.createdAt).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })}</p>
+                      <h3 className="font-bold text-gray-900 mt-3 mb-2 leading-snug">{item.titulo}</h3>
+                      <p className="text-gray-500 text-sm leading-relaxed">{item.resumo}</p>
+                      <p className="text-xs text-gray-400 mt-4">{new Date(item.criadoEm).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })}</p>
                     </div>
                   </article>
                 ))}
@@ -171,9 +171,9 @@ export default function Inicio() {
                 <div className="grid md:grid-cols-3 gap-6">
                   {newsText.map((item) => (
                     <article key={item.id} className="bg-white rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow border border-gray-100">
-                      <h3 className="font-bold text-gray-900 mb-2 leading-snug">{item.title}</h3>
-                      <p className="text-gray-500 text-sm leading-relaxed">{item.excerpt}</p>
-                      <p className="text-xs text-gray-400 mt-4">{new Date(item.createdAt).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })}</p>
+                      <h3 className="font-bold text-gray-900 mb-2 leading-snug">{item.titulo}</h3>
+                      <p className="text-gray-500 text-sm leading-relaxed">{item.resumo}</p>
+                      <p className="text-xs text-gray-400 mt-4">{new Date(item.criadoEm).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })}</p>
                     </article>
                   ))}
                 </div>
@@ -192,12 +192,12 @@ export default function Inicio() {
               {testimonials.map((t) => (
                 <div key={t.id} className="border-l-4 border-green-500 pl-5 py-2 bg-gray-50 rounded-r-xl pr-5">
                   <Quote className="w-5 h-5 text-green-500 mb-3" />
-                  <p className="text-gray-700 leading-relaxed text-sm italic mb-5">{t.quote}</p>
+                  <p className="text-gray-700 leading-relaxed text-sm italic mb-5">{t.citacao}</p>
                   <div className="flex items-center gap-3">
-                    {t.avatarUrl && <img src={t.avatarUrl} alt={t.name || ''} className="w-10 h-10 rounded-full object-cover" />}
+                    {t.urlAvatar && <img src={t.urlAvatar} alt={t.nome || ''} className="w-10 h-10 rounded-full object-cover" />}
                     <div>
-                      <div className="text-sm font-bold text-gray-900">{t.name}</div>
-                      <div className="text-xs text-gray-500">{t.role}</div>
+                      <div className="text-sm font-bold text-gray-900">{t.nome}</div>
+                      <div className="text-xs text-gray-500">{t.cargo}</div>
                     </div>
                   </div>
                 </div>
@@ -219,15 +219,15 @@ export default function Inicio() {
               {activities.map((act) => {
                 return (
                   <div key={act.id} className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-shadow">
-                    {act.imageUrl && <img src={act.imageUrl} alt={act.title} className="w-full h-44 object-cover" />}
+                    {act.urlImagem && <img src={act.urlImagem} alt={act.titulo} className="w-full h-44 object-cover" />}
                     <div className="p-5">
                       <div className="flex flex-wrap gap-1.5 mb-2">
-                        {act.badges.map((b) => (
+                        {act.insignias.map((b) => (
                           <span key={b} className={`text-xs font-bold px-2 py-0.5 rounded ${BADGE_COLOR[b] || BADGE_COLOR.DEFAULT}`}>{b}</span>
                         ))}
                       </div>
-                      <h3 className="font-bold text-gray-900 mt-2 mb-2">{act.title}</h3>
-                      <p className="text-gray-500 text-sm leading-relaxed">{act.description}</p>
+                      <h3 className="font-bold text-gray-900 mt-2 mb-2">{act.titulo}</h3>
+                      <p className="text-gray-500 text-sm leading-relaxed">{act.descricao}</p>
                       <Link to="/atividades" className="inline-flex items-center gap-1.5 mt-4 text-green-700 font-medium text-sm hover:gap-2.5 transition-all">
                         Saiba mais <ArrowRight className="w-3.5 h-3.5" />
                       </Link>
