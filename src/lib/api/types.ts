@@ -9,6 +9,21 @@ export interface Noticia {
   criadoEm: string;
 }
 
+export interface AtividadeImagem {
+  id?: number;
+  url: string;
+  ordem: number;
+  legenda?: string;
+}
+
+export interface AtividadePonto {
+  id?: number;
+  lat: number;
+  lng: number;
+  rotulo?: string;
+  ordem: number;
+}
+
 export interface Atividade {
   id: number;
   titulo: string;
@@ -17,7 +32,21 @@ export interface Atividade {
   valorAlvo?: string;
   rotuloAlvo?: string;
   objetivo?: string;
-  urlImagem?: string;
+  componenteId?: number;
+  tipoAcao?: string;
+  demandante?: string;
+  estados?: string[];
+  hectares?: string;
+  valorImpacto?: string;
+  rotuloImpacto?: string;
+  metrica1Valor?: string;
+  metrica1Rotulo?: string;
+  delineamentoDescricao?: string;
+  parceiros?: string[];
+  data?: string;
+  status: 'publicado' | 'rascunho';
+  imagens: AtividadeImagem[];
+  pontos: AtividadePonto[];
   criadoEm: string;
 }
 

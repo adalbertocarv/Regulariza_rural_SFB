@@ -19,8 +19,19 @@ export const adminApi = {
     request<{ message: string }>(`/noticias/${id}`, { method: 'DELETE', auth: true }),
 
   // Activities
+  getAllActivities: (params?: { page?: number; limit?: number }) => {
+    const q = new URLSearchParams();
+    if (params?.page)  q.set('page',  String(params.page));
+    if (params?.limit) q.set('limit', String(params.limit));
+    return request<{ items: import('./types').Atividade[]; total: number; page: number; totalPages: number }>(
+      `/atividades/todos?${q}`,
+      { auth: true }
+    );
+  },
   createActivity: (data: Partial<Atividade>) =>
     request<Atividade>('/atividades', { method: 'POST', body: JSON.stringify(data), auth: true }),
+  saveDraft: (data: Partial<Atividade>) =>
+    request<Atividade>('/atividades', { method: 'POST', body: JSON.stringify({ ...data, status: 'rascunho' }), auth: true }),
   updateActivity: (id: number, data: Partial<Atividade>) =>
     request<Atividade>(`/atividades/${id}`, { method: 'PUT', body: JSON.stringify(data), auth: true }),
   deleteActivity: (id: number) =>

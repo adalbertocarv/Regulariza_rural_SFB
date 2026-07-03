@@ -1,133 +1,238 @@
-import { useState, useEffect } from 'react';
-import { Search, Download, Eye, Share2, FileText, MapPin, Mail, Phone, Loader2 } from 'lucide-react';
+import { useState, useEffect, useMemo } from 'react';
+import { Search, Download, Eye, BookOpen, AlertCircle, ChevronRight, X, FileText, Image, Video, PenTool, Loader2 } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 import { api, DocumentoRepositorio } from '../lib/api';
-
-const iconMap: Record<string, React.ReactNode> = {
-  pdf: <div className="w-12 h-12 rounded-lg bg-green-100 flex items-center justify-center"><FileText className="w-6 h-6 text-green-700" /></div>,
-  docx: <div className="w-12 h-12 rounded-lg bg-blue-100 flex items-center justify-center"><FileText className="w-6 h-6 text-blue-700" /></div>,
-  zip: <div className="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center"><MapPin className="w-6 h-6 text-gray-700" /></div>,
-  artigo: <div className="w-12 h-12 rounded-lg bg-blue-100 flex items-center justify-center"><FileText className="w-6 h-6 text-blue-700" /></div>,
-  video: <div className="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center"><Eye className="w-6 h-6 text-gray-700" /></div>,
-};
-
-const tabs = ['Documentos', 'Fotos', 'Vídeos', 'Entrevistas', 'Manual da Marca', 'Blog/Matérias'];
 
 export default function Repositorio() {
   const [documents, setDocuments] = useState<DocumentoRepositorio[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('Documentos');
+  const [activeCategory, setActiveCategory] = useState<string>('Documentos');
   const [search, setSearch] = useState('');
+  const [viewingDoc, setViewingDoc] = useState<DocumentoRepositorio | null>(null);
+  const [downloadingDocId, setDownloadingDocId] = useState<number | null>(null);
+  const [progressVal, setProgressVal] = useState(0);
+  const [downloadToastText, setDownloadToastText] = useState<string | null>(null);
 
   useEffect(() => {
-    api.getDocuments().then(setDocuments).finally(() => setLoading(false));
+    setLoading(true);
+    api.getDocuments()
+      .then((data) => setDocuments(data))
+      .finally(() => setLoading(false));
   }, []);
 
-  const filtered = documents.filter((d) => d.titulo.toLowerCase().includes(search.toLowerCase()));
+  const categories = [
+    { label: 'Documentos', icon: FileText },
+    { label: 'Fotos', icon: Image },
+    { label: 'Vídeos', icon: Video },
+    { label: 'Manual da Marca', icon: PenTool },
+  ];
+
+  const filteredDocs = useMemo(() => {
+    return documents.filter((doc) => {
+      const matchCat = !doc.tipoDocumento || doc.tipoDocumento.toUpperCase().includes(activeCategory.toUpperCase()) || activeCategory === 'Documentos';
+      const matchSearch =
+        doc.titulo.toLowerCase().includes(search.toLowerCase()) ||
+        (doc.descricao && doc.descricao.toLowerCase().includes(search.toLowerCase()));
+
+      return matchCat && matchSearch;
+    });
+  }, [documents, activeCategory, search]);
+
+  const triggerDownload = (doc: DocumentoRepositorio) => {
+    if (downloadingDocId) return;
+    setDownloadingDocId(doc.id);
+    setProgressVal(0);
+
+    const interval = setInterval(() => {
+      setProgressVal((prev) => {
+        if (prev >= 100) {
+          clearInterval(interval);
+          setTimeout(() => {
+            setDownloadingDocId(null);
+            setDownloadToastText(`Download de "${doc.titulo}" iniciado com sucesso!`);
+            setTimeout(() => setDownloadToastText(null), 4000);
+          }, 350);
+          return 100;
+        }
+        return prev + 25;
+      });
+    }, 100);
+  };
 
   return (
-    <main className="pt-16 bg-white">
-      {/* Hero */}
-      <section className="relative h-96 flex items-center overflow-hidden" style={{ backgroundImage: 'url(https://images.pexels.com/photos/1624600/pexels-photo-1624600.jpeg?auto=compress&cs=tinysrgb&w=1920)', backgroundSize: 'cover', backgroundPosition: 'center' }}>
-        <div className="absolute inset-0 bg-gradient-to-r from-green-900/70 via-green-900/60 to-transparent" />
-        <div className="relative z-10 max-w-7xl mx-auto px-6 w-full">
-          <span className="inline-block bg-green-500/80 text-white text-xs font-bold px-3 py-1 rounded-full mb-4">REPOSITÓRIO INSTITUCIONAL</span>
-          <h1 className="text-5xl md:text-6xl font-bold text-white leading-tight">Legado do Projeto</h1>
-          <p className="text-green-100 text-lg mt-3 max-w-2xl">Acesse a base completa de conhecimentos, diretrizes e registros gerados para a governança das terras rurais.</p>
+    <div className="bg-preto-5 text-black min-h-screen pt-16">
+      {/* Hero Header */}
+      <section className="relative h-[350px] sm:h-[400px] flex items-center overflow-hidden max-w-7xl mx-auto rounded-sm mt-4 shadow-xs">
+        <div className="absolute inset-0 z-0 select-none">
+          <img
+            alt="Paisagem rural"
+            className="w-full h-full object-cover grayscale brightness-[0.45]"
+            src="https://lh3.googleusercontent.com/aida-public/AB6AXuCzUcHD8EJUdogIFDVppXhrwCoXzgMj2Ung5dMmcNi4GAvBJeqiA3H6Z5xpaYLS_FY0RWzomxeyyE1Y0x2SRU85busjI6mAu_6hMY63yP7ELNbQcK08XSxgW_v7vt33di8Cc3jfkvFe7sV0443B1uwj31F52FGlqu3PA5HurNHktgfbEavVO1-ZsKPu8J5ZaV8iyjhdSbZn_-2mtNTxjeLLrjmyJz0Oc_jKOs4Hn2czaiDbp4CaKeBaapWLxCCoTsmTl2vEF0XzoEQ"
+          />
+          <div className="absolute inset-0 bg-[#038E5C]/15 mix-blend-overlay" />
+          <div className="absolute inset-0 bg-black/40" />
+          <div className="absolute inset-0 bg-gradient-to-t from-fundo-escuro/95 via-transparent to-transparent" />
         </div>
-      </section>
-
-      {/* Tabs and Search */}
-      <section className="bg-gray-50 sticky top-16 z-10 border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-6 py-6">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div className="flex flex-wrap gap-2">
-              {tabs.map((tab) => (
-                <button key={tab} onClick={() => setActiveTab(tab)} className={`px-4 py-2 rounded-full font-medium text-sm transition-colors ${activeTab === tab ? 'bg-green-700 text-white' : 'bg-white text-gray-700 border border-gray-200 hover:border-green-400'}`}>
-                  {tab}
-                </button>
-              ))}
-            </div>
-            <div className="relative flex-1 md:flex-none md:w-64">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-              <input type="text" placeholder="Buscar materiais..." value={search} onChange={(e) => setSearch(e.target.value)} className="w-full pl-9 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 bg-white text-sm" />
-            </div>
+        <div className="px-8 relative z-10 w-full">
+          <div className="max-w-2xl">
+            <span className="text-destaque-1 font-mono tracking-[0.25em] uppercase text-[10px] font-bold mb-4 block bg-white px-2 py-1 max-w-fit rounded-sm">Repositório Institucional</span>
+            <h1 className="text-4xl sm:text-6xl font-serif font-bold text-white leading-tight mb-5 tracking-tight">
+              Legado do <span className="font-serif italic text-destaque-1">Projeto</span>
+            </h1>
+            <p className="text-white/90 text-sm sm:text-base max-w-lg leading-relaxed font-sans font-light">
+              Acesse a base completa de conhecimentos, modelos administrativos, cartilhas de conservação e materiais de imprensa.
+            </p>
           </div>
         </div>
       </section>
 
-      {/* Content Grid */}
-      <section className="py-12 bg-white">
-        <div className="max-w-7xl mx-auto px-6">
-          {loading ? (
-            <div className="flex justify-center py-20"><Loader2 className="w-8 h-8 text-green-600 animate-spin" /></div>
-          ) : (
-            <>
-              <div className="grid md:grid-cols-3 gap-6 mb-8">
-                {filtered.map((doc) => (
-                  <div key={doc.id} className="bg-white rounded-xl p-6 border border-gray-100 hover:shadow-md transition-shadow flex flex-col">
-                    <div className="mb-4">{iconMap[doc.tipoIcone || 'pdf'] || iconMap.pdf}</div>
-                    <div className="flex-1 mb-4">
-                      <p className="text-xs text-gray-500 font-bold mb-2">{doc.tamanhoArquivo}</p>
-                      <h3 className="font-bold text-gray-900 mb-2 text-base leading-snug">{doc.titulo}</h3>
-                      <p className="text-sm text-gray-600 leading-relaxed">{doc.descricao}</p>
+      {/* Switcher & Search */}
+      <section className="bg-white py-8 border-b border-preto-10 select-none max-w-7xl mx-auto mt-6 rounded-sm shadow-xs">
+        <div className="px-6 sm:px-8 space-y-6 lg:space-y-0 lg:flex items-center justify-between gap-8">
+          <div className="flex flex-wrap items-center gap-2 p-1.5 rounded-sm border border-preto-10 bg-preto-5">
+            {categories.map((cat) => {
+              const Icon = cat.icon;
+              const isSelected = activeCategory === cat.label;
+              return (
+                <button
+                  key={cat.label}
+                  onClick={() => { setActiveCategory(cat.label); setSearch(''); }}
+                  className={`px-4 py-2.5 rounded-sm text-[10px] font-mono uppercase tracking-[0.15em] font-bold cursor-pointer transition-all flex items-center gap-1.5 ${
+                    isSelected ? 'bg-destaque-1 text-white shadow-sm' : 'text-stone-600 hover:bg-destaque-1/10 hover:text-destaque-1'
+                  }`}
+                >
+                  <Icon className="w-3.5 h-3.5 shrink-0" />
+                  <span>{cat.label}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="relative w-full lg:w-72">
+            <input
+              type="text"
+              placeholder="Buscar materiais..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full bg-preto-5 border border-preto-10 rounded-sm pl-10 pr-4 py-2.5 text-xs text-black focus:ring-1 focus:ring-destaque-1 focus:border-destaque-1 focus:outline-none placeholder-stone-500 font-sans font-bold"
+            />
+            <Search className="w-3.5 h-3.5 text-stone-500 absolute left-3.5 top-3.5" />
+          </div>
+        </div>
+      </section>
+
+      {/* Grid */}
+      <section className="py-20 max-w-7xl mx-auto px-6 sm:px-8">
+        {loading ? (
+          <div className="flex justify-center py-20"><Loader2 className="w-8 h-8 text-destaque-1 animate-spin" /></div>
+        ) : filteredDocs.length === 0 ? (
+          <div className="bg-white p-12 rounded-sm border border-preto-10 text-center space-y-4 shadow-xs">
+            <AlertCircle className="w-10 h-10 text-stone-400 mx-auto stroke-[1.5]" />
+            <p className="text-stone-600 font-light text-sm">Nenhum documento encontrado para a busca atual.</p>
+            <button onClick={() => { setActiveCategory('Documentos'); setSearch(''); }} className="border-2 border-destaque-1 text-destaque-1 hover:bg-destaque-1 hover:text-white px-5 py-2.5 rounded-sm font-mono uppercase tracking-[0.15em] text-[10px] font-bold transition-all cursor-pointer">
+              Limpar Filtros
+            </button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredDocs.map((doc) => {
+              const isDownloading = downloadingDocId === doc.id;
+              return (
+                <div key={doc.id} className="group bg-white p-8 rounded-sm border border-preto-10 flex flex-col justify-between hover:border-destaque-1/40 hover:translate-y-[-2px] transition-all duration-300 shadow-xs">
+                  <div>
+                    <div className="flex justify-between items-center mb-6 select-none">
+                      <div className="p-2.5 border border-preto-10 text-destaque-1 bg-destaque-1/5 rounded-none">
+                        <BookOpen className="w-4.5 h-4.5 stroke-[1.5]" />
+                      </div>
+                      <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-[#1a1a1a] px-2.5 py-1 bg-preto-5 border border-preto-10">
+                        {doc.tipoIcone?.toUpperCase() || 'PDF'} • {doc.tamanhoArquivo || '2.0 MB'}
+                      </span>
                     </div>
-                    {doc.tipoDocumento === 'DOWNLOAD' ? (
-                      <a href={doc.urlArquivo || '#'} download className="w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2.5 rounded-lg flex items-center justify-center gap-2 transition-colors">
-                        <Download className="w-4 h-4" /> Download
-                      </a>
-                    ) : doc.tipoDocumento === 'LINK' ? (
-                      <a href={doc.urlArquivo || '#'} target="_blank" rel="noopener noreferrer" className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 rounded-lg flex items-center justify-center gap-2 transition-colors">
-                        <FileText className="w-4 h-4" /> Ler Matéria
-                      </a>
-                    ) : (
-                      <a href={doc.urlArquivo || '#'} target="_blank" rel="noopener noreferrer" className="w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2.5 rounded-lg flex items-center justify-center gap-2 transition-colors">
-                        <Eye className="w-4 h-4" /> Assistir
-                      </a>
-                    )}
-                    <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
-                      <button className="p-2 text-gray-400 hover:text-gray-600 transition-colors"><Eye className="w-4 h-4" /></button>
-                      <button className="p-2 text-gray-400 hover:text-gray-600 transition-colors"><Share2 className="w-4 h-4" /></button>
+
+                    <div className="space-y-3">
+                      <h3 className="text-lg font-serif text-[#1a1a1a] font-bold leading-snug group-hover:text-destaque-1 transition-colors">
+                        {doc.titulo}
+                      </h3>
+                      <p className="text-stone-600 text-xs leading-relaxed font-sans font-light">
+                        {doc.descricao}
+                      </p>
                     </div>
                   </div>
-                ))}
-              </div>
-              {filtered.length === 0 && <div className="text-center py-12 text-gray-400">Nenhum material encontrado.</div>}
-            </>
-          )}
-        </div>
+
+                  <div className="mt-8 space-y-4">
+                    {isDownloading ? (
+                      <div className="space-y-1.5">
+                        <div className="flex justify-between items-center text-[10px] font-mono font-bold text-destaque-1">
+                          <span>Processando arquivo...</span>
+                          <span>{progressVal}%</span>
+                        </div>
+                        <div className="w-full h-1 bg-preto-10 rounded-none overflow-hidden">
+                          <div className="h-full bg-destaque-1 transition-all duration-100" style={{ width: `${progressVal}%` }} />
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-3">
+                        <button
+                          onClick={() => triggerDownload(doc)}
+                          className="flex-1 bg-destaque-1 hover:bg-destaque-1/90 text-white py-3 rounded-sm font-mono uppercase tracking-[0.15em] text-[10px] font-bold flex items-center justify-center gap-2 transition-all cursor-pointer border-none"
+                        >
+                          <Download className="w-3.5 h-3.5" />
+                          Download
+                        </button>
+                        <button
+                          onClick={() => setViewingDoc(doc)}
+                          className="p-3 rounded-sm border border-preto-10 text-stone-600 hover:border-destaque-1 hover:text-destaque-1 transition-all cursor-pointer"
+                          title="Visualizar documento"
+                        >
+                          <Eye className="w-4 h-4" />
+                        </button>
+                      </div>
+                    )}
+
+                    <p className="text-[9px] font-mono font-bold text-stone-400 uppercase tracking-wider text-center leading-normal select-none">
+                      Uso restrito a fins institucionais e educativos
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </section>
 
-      {/* Support Section */}
-      <section className="bg-green-900 text-white py-16">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="grid md:grid-cols-2 gap-12">
-            <div>
-              <h2 className="text-3xl font-bold mb-4">Não encontrou o que procurava?</h2>
-              <p className="text-green-100 mb-8 leading-relaxed">Nossa equipe está à disposição para fornecer documentos específicos ou esclarecer dúvidas sobre as publicações do projeto.</p>
-              <div className="flex flex-col sm:flex-row gap-3">
-                <button className="px-6 py-2.5 bg-green-700 hover:bg-green-600 rounded-lg font-semibold transition-colors">Falar com Suporte</button>
-                <button className="px-6 py-2.5 border-2 border-green-500 text-white hover:bg-green-800 rounded-lg font-semibold transition-colors">Central de Ajuda</button>
+      {/* Modal */}
+      <AnimatePresence>
+        {viewingDoc && (
+          <div className="fixed inset-0 bg-black/45 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+            <motion.div initial={{ scale: 0.98, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.98, opacity: 0 }} className="bg-white rounded-sm overflow-hidden max-w-lg w-full shadow-2xl relative border border-preto-10">
+              <div className="bg-fundo-escuro text-white p-6 relative">
+                <span className="text-[10px] font-mono font-bold text-destaque-1 uppercase tracking-widest block mb-2">{viewingDoc.tipoIcone?.toUpperCase() || 'PDF'} • {viewingDoc.tamanhoArquivo || '2 MB'}</span>
+                <h4 className="font-serif text-lg leading-tight pr-8 font-bold">{viewingDoc.titulo}</h4>
+                <button onClick={() => setViewingDoc(null)} className="absolute top-6 right-6 text-white/75 hover:text-white cursor-pointer"><X className="w-4 h-4" /></button>
               </div>
-            </div>
-            <div className="space-y-6 bg-green-800/50 p-6 rounded-xl border border-green-700">
-              <div className="flex items-start gap-4">
-                <Mail className="w-5 h-5 text-green-400 flex-shrink-0 mt-1" />
-                <div>
-                  <p className="text-xs font-bold text-green-300 uppercase tracking-wider">E-MAIL DIRETO</p>
-                  <p className="text-white font-semibold mt-1">contato@regularizarural.org</p>
+              <div className="p-8 space-y-6">
+                <p className="text-xs text-stone-600 leading-relaxed font-sans font-light">{viewingDoc.descricao}</p>
+                <div className="flex gap-3">
+                  <button onClick={() => setViewingDoc(null)} className="flex-1 border border-preto-10 text-[#1a1a1a] hover:bg-preto-5 py-3 rounded-sm font-mono uppercase tracking-[0.15em] text-[10px] font-bold cursor-pointer">Fechar</button>
+                  <button onClick={() => { const doc = viewingDoc; setViewingDoc(null); triggerDownload(doc); }} className="flex-1 bg-destaque-1 hover:bg-destaque-1/90 text-white py-3 rounded-sm font-mono uppercase tracking-[0.15em] text-[10px] font-bold cursor-pointer border-none">Baixar Arquivo</button>
                 </div>
               </div>
-              <div className="flex items-start gap-4">
-                <Phone className="w-5 h-5 text-green-400 flex-shrink-0 mt-1" />
-                <div>
-                  <p className="text-xs font-bold text-green-300 uppercase tracking-wider">TELEFONE</p>
-                  <p className="text-white font-semibold mt-1">+55 (61) 3344-5566</p>
-                </div>
-              </div>
-            </div>
+            </motion.div>
           </div>
-        </div>
-      </section>
-    </main>
+        )}
+      </AnimatePresence>
+
+      {/* Toast */}
+      <AnimatePresence>
+        {downloadToastText && (
+          <div className="fixed bottom-6 right-6 z-50 p-4">
+            <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 30 }} className="bg-fundo-escuro text-white p-4 rounded-sm shadow-2xl flex items-center gap-3 border border-destaque-1/25">
+              <div className="text-xs font-sans text-white">{downloadToastText}</div>
+              <button onClick={() => setDownloadToastText(null)} className="text-destaque-1 font-mono uppercase text-[9px] font-bold tracking-wider pl-4 cursor-pointer">[ok]</button>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 }

@@ -1,25 +1,29 @@
-import { useState, useEffect, FormEvent } from 'react';
-import { Plus, Pencil, Trash2, Loader2, X } from 'lucide-react';
-import { api, adminApi, Atividade } from '../../../lib/api';
-import { Modal, ConfirmDelete, FileUpload, Field, inputClass, textareaClass } from './compartilhado';
+import { useState, useEffect } from 'react';
+import { Plus, Pencil, Trash2, Loader2, Zap, Eye, EyeOff } from 'lucide-react';
+import { adminApi, Atividade } from '../../../lib/api';
+import { ConfirmDelete } from './compartilhado';
+import EditorAtividade from './EditorAtividade';
 
-const ALL_BADGES = ['RECUPERAÇÃO', 'CERCAMENTO', 'MATA ATLÂNTICA', 'CERRADO', 'AMAZÔNIA', 'CAATINGA', 'SEMIARID'];
-const emptyForm: Partial<Atividade> = { titulo: '', descricao: '', insignias: [], valorAlvo: '', rotuloAlvo: 'PÚBLICO', objetivo: '', urlImagem: '' };
+const COMPONENTES_NOMES: Record<number, string> = {
+  1: 'Fortalecimento institucional',
+  2: 'Apoio à regularização ambiental',
+  3: 'Recomposição e restauração ecológica',
+  4: 'Gestão do Projeto',
+};
 
 export default function GerenciadorAtividades() {
-  const [items, setItems] = useState<Atividade[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [showModal, setShowModal] = useState(false);
-  const [editing, setEditing] = useState<Atividade | null>(null);
-  const [form, setForm] = useState<Partial<Atividade>>(emptyForm);
-  const [saving, setSaving] = useState(false);
-  const [deleteId, setDeleteId] = useState<number | null>(null);
-  const [deleting, setDeleting] = useState(false);
+  const [items, setItems]         = useState<Atividade[]>([]);
+  const [loading, setLoading]     = useState(true);
+  const [showEditor, setShowEditor] = useState(false);
+  const [editing, setEditing]     = useState<Atividade | null>(null);
+  const [deleteId, setDeleteId]   = useState<number | null>(null);
+  const [deleting, setDeleting]   = useState(false);
+  const [filterStatus, setFilterStatus] = useState<'todos' | 'publicado' | 'rascunho'>('todos');
 
   const loadData = async () => {
     setLoading(true);
     try {
-      const data = await api.getActivities({ limit: 50 });
+      const data = await adminApi.getAllActivities({ limit: 200 });
       setItems(data.items);
     } finally {
       setLoading(false);
@@ -28,152 +32,157 @@ export default function GerenciadorAtividades() {
 
   useEffect(() => { loadData(); }, []);
 
-  const openCreate = () => { setEditing(null); setForm(emptyForm); setShowModal(true); };
-  const openEdit = (item: Atividade) => { setEditing(item); setForm({ ...item }); setShowModal(true); };
-  const closeModal = () => { setShowModal(false); setEditing(null); setForm(emptyForm); };
-
-  const toggleBadge = (badge: string) => {
-    setForm((f) => ({
-      ...f,
-      insignias: f.insignias?.includes(badge) ? f.insignias.filter((b) => b !== badge) : [...(f.insignias || []), badge],
-    }));
-  };
-
-  const handleSave = async (e: FormEvent) => {
-    e.preventDefault();
-    setSaving(true);
-    try {
-      if (editing) {
-        await adminApi.updateActivity(editing.id, form);
-      } else {
-        await adminApi.createActivity(form);
-      }
-      closeModal();
-      loadData();
-    } catch (e: unknown) {
-      alert(e instanceof Error ? e.message : 'Erro ao salvar');
-    } finally {
-      setSaving(false);
-    }
-  };
+  const openCreate = () => { setEditing(null); setShowEditor(true); };
+  const openEdit = (item: Atividade) => { setEditing(item); setShowEditor(true); };
+  const closeEditor = () => { setShowEditor(false); setEditing(null); };
+  const handleSaved = () => { closeEditor(); loadData(); };
 
   const handleDelete = async () => {
     if (!deleteId) return;
     setDeleting(true);
-    try {
-      await adminApi.deleteActivity(deleteId);
-      setDeleteId(null);
-      loadData();
-    } finally {
-      setDeleting(false);
-    }
+    try { await adminApi.deleteActivity(deleteId); setDeleteId(null); loadData(); }
+    finally { setDeleting(false); }
   };
+
+  const filtered = items.filter((item) => {
+    if (filterStatus === 'todos') return true;
+    return item.status === filterStatus;
+  });
+
+  const counts = {
+    todos: items.length,
+    publicado: items.filter((i) => i.status === 'publicado').length,
+    rascunho:  items.filter((i) => i.status === 'rascunho').length,
+  };
+
+  if (showEditor) {
+    return (
+      <EditorAtividade
+        editing={editing}
+        onClose={closeEditor}
+        onSaved={handleSaved}
+      />
+    );
+  }
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      {/* Section header */}
+      <div className="flex items-start justify-between mb-6">
         <div>
-          <h2 className="text-xl font-bold text-gray-900">Atividades</h2>
-          <p className="text-sm text-gray-500">Ações de campo e projetos em andamento</p>
+          <span className="text-destaque-1 font-mono tracking-[0.25em] text-[9px] uppercase font-bold block mb-1">Ações de Campo</span>
+          <h2 className="text-2xl font-serif font-bold text-black tracking-tight">Atividades</h2>
+          <div className="h-[2px] w-10 bg-destaque-1 mt-3" />
         </div>
         <button
           id="activities-create-btn"
           onClick={openCreate}
-          className="flex items-center gap-2 bg-green-700 hover:bg-green-800 text-white px-4 py-2.5 rounded-xl text-sm font-medium transition-colors"
+          className="flex items-center gap-2 bg-destaque-1 hover:bg-destaque-1/90 text-white px-4 py-2.5 font-mono uppercase tracking-[0.18em] text-[9px] font-bold transition-colors"
         >
-          <Plus className="w-4 h-4" /> Nova Atividade
+          <Plus className="w-3.5 h-3.5" /> Nova Atividade
         </button>
       </div>
 
+      {/* Status filter tabs */}
+      <div className="flex gap-2 mb-5">
+        {(['todos', 'publicado', 'rascunho'] as const).map((s) => (
+          <button
+            key={s}
+            onClick={() => setFilterStatus(s)}
+            className={`flex items-center gap-1.5 px-3 py-1.5 text-[9px] font-mono font-bold uppercase tracking-wider border transition-colors ${
+              filterStatus === s
+                ? s === 'rascunho'
+                  ? 'bg-amber-500 text-white border-amber-500'
+                  : 'bg-destaque-1 text-white border-destaque-1'
+                : 'border-preto-10 text-black/50 hover:border-destaque-1/40'
+            }`}
+          >
+            {s === 'publicado' && <Eye className="w-3 h-3" />}
+            {s === 'rascunho'  && <EyeOff className="w-3 h-3" />}
+            {s === 'todos' ? 'Todos' : s} ({counts[s]})
+          </button>
+        ))}
+      </div>
+
       {loading ? (
-        <div className="flex justify-center py-20"><Loader2 className="w-8 h-8 text-green-600 animate-spin" /></div>
+        <div className="flex flex-col items-center justify-center py-20 gap-3">
+          <Loader2 className="w-7 h-7 text-destaque-1 animate-spin" />
+          <span className="font-mono uppercase tracking-wider text-[9px] text-black/30">Carregando...</span>
+        </div>
+      ) : filtered.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-16 gap-3 bg-white border border-preto-10">
+          <Zap className="w-10 h-10 text-black/10" />
+          <span className="font-mono uppercase tracking-wider text-[9px] text-black/30">Nenhuma atividade encontrada</span>
+          <button onClick={openCreate} className="font-mono uppercase tracking-[0.18em] text-[9px] font-bold text-destaque-1 hover:underline">
+            Criar a primeira →
+          </button>
+        </div>
       ) : (
         <div className="grid md:grid-cols-2 gap-4">
-          {items.map((item) => (
-            <div key={item.id} className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden hover:shadow-md transition-shadow">
-              {item.urlImagem && (
-                <img src={item.urlImagem} alt={item.titulo} className="w-full h-36 object-cover" />
-              )}
+          {filtered.map((item) => (
+            <div key={item.id} className="bg-white border border-preto-10 overflow-hidden hover:border-destaque-1/40 hover:-translate-y-0.5 transition-all duration-200">
+              {/* Cover image */}
+              {(() => {
+                const cover = item.imagens?.[0]?.url;
+                return cover ? (
+                  <div className="relative h-36 overflow-hidden border-b border-preto-10">
+                    <img src={cover} alt={item.titulo} className="w-full h-full object-cover grayscale brightness-95" />
+                    {item.imagens?.length > 1 && (
+                      <span className="absolute bottom-2 right-2 bg-black/60 text-white text-[8px] font-mono px-1.5 py-0.5">
+                        +{item.imagens.length - 1} fotos
+                      </span>
+                    )}
+                  </div>
+                ) : null;
+              })()}
               <div className="p-5">
+                <div className="flex justify-between items-center text-[9px] font-mono font-bold tracking-wider text-black/40 uppercase mb-2 border-b border-preto-5 pb-2">
+                  <span>Componente {item.componenteId || 1}: {COMPONENTES_NOMES[item.componenteId || 1]}</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-destaque-2">{item.estados?.join(', ') || 'Todas UFs'}</span>
+                    {item.status === 'rascunho' && (
+                      <span className="bg-amber-100 text-amber-700 border border-amber-200 px-1.5 py-0.5 text-[7px] font-mono font-bold uppercase tracking-wider">
+                        Rascunho
+                      </span>
+                    )}
+                  </div>
+                </div>
                 <div className="flex flex-wrap gap-1.5 mb-3">
+                  {item.tipoAcao && (
+                    <span className="text-[8px] font-mono font-bold px-2 py-0.5 bg-destaque-1 text-white uppercase tracking-wider">{item.tipoAcao}</span>
+                  )}
+                  {item.demandante && (
+                    <span className="text-[8px] font-mono font-bold px-2 py-0.5 bg-preto-5 border border-preto-10 text-black/70 uppercase tracking-wider">{item.demandante}</span>
+                  )}
                   {item.insignias.map((b) => (
-                    <span key={b} className="text-xs font-bold px-2 py-0.5 bg-green-100 text-green-700 rounded-full">{b}</span>
+                    <span key={b} className="text-[8px] font-mono font-bold px-2 py-0.5 bg-destaque-1/10 text-destaque-1 uppercase tracking-wider">{b}</span>
                   ))}
                 </div>
-                <h3 className="font-bold text-gray-900 mb-1">{item.titulo}</h3>
-                <p className="text-sm text-gray-500 line-clamp-2 mb-4">{item.descricao}</p>
-                <div className="flex justify-end gap-2 border-t border-gray-50 pt-3">
-                  <button onClick={() => openEdit(item)} className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
-                    <Pencil className="w-4 h-4" />
+                <h3 className="font-serif font-bold text-black mb-1 leading-tight">{item.titulo}</h3>
+                <p className="text-xs text-black/50 line-clamp-2 mb-4 font-sans leading-relaxed">{item.descricao}</p>
+
+                {/* Stats pills */}
+                <div className="flex gap-3 mb-3">
+                  {item.imagens?.length > 0 && (
+                    <span className="text-[8px] font-mono text-black/40">📷 {item.imagens.length} imagem(ns)</span>
+                  )}
+                  {item.pontos?.length > 0 && (
+                    <span className="text-[8px] font-mono text-black/40">📍 {item.pontos.length} ponto(s)</span>
+                  )}
+                </div>
+
+                <div className="flex justify-end gap-1 border-t border-preto-5 pt-3">
+                  <button onClick={() => openEdit(item)} className="p-2 text-black/30 hover:text-destaque-2 hover:bg-destaque-2/5 transition-colors">
+                    <Pencil className="w-3.5 h-3.5" />
                   </button>
-                  <button onClick={() => setDeleteId(item.id)} className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
-                    <Trash2 className="w-4 h-4" />
+                  <button onClick={() => setDeleteId(item.id)} className="p-2 text-black/30 hover:text-red-600 hover:bg-red-50 transition-colors">
+                    <Trash2 className="w-3.5 h-3.5" />
                   </button>
                 </div>
               </div>
             </div>
           ))}
         </div>
-      )}
-
-      {showModal && (
-        <Modal title={editing ? 'Editar Atividade' : 'Nova Atividade'} onClose={closeModal}>
-          <form onSubmit={handleSave} className="space-y-5">
-            <Field label="Título" required>
-              <input className={inputClass} value={form.titulo || ''} onChange={(e) => setForm((f) => ({ ...f, titulo: e.target.value }))} required />
-            </Field>
-
-            <Field label="Descrição">
-              <textarea className={textareaClass} rows={3} value={form.descricao || ''} onChange={(e) => setForm((f) => ({ ...f, descricao: e.target.value }))} />
-            </Field>
-
-            <Field label="Badges">
-              <div className="flex flex-wrap gap-2">
-                {ALL_BADGES.map((badge) => (
-                  <button
-                    key={badge}
-                    type="button"
-                    onClick={() => toggleBadge(badge)}
-                    className={`text-xs font-bold px-3 py-1.5 rounded-full border transition-colors ${
-                      form.insignias?.includes(badge)
-                        ? 'bg-green-700 text-white border-green-700'
-                        : 'border-gray-200 text-gray-600 hover:border-green-400'
-                    }`}
-                  >
-                    {form.insignias?.includes(badge) && <X className="w-3 h-3 inline mr-1" />}
-                    {badge}
-                  </button>
-                ))}
-              </div>
-            </Field>
-
-            <div className="grid grid-cols-2 gap-4">
-              <Field label="Rótulo (PÚBLICO / ÁREA)">
-                <select className={inputClass} value={form.rotuloAlvo || 'PÚBLICO'} onChange={(e) => setForm((f) => ({ ...f, rotuloAlvo: e.target.value }))}>
-                  <option>PÚBLICO</option>
-                  <option>ÁREA</option>
-                </select>
-              </Field>
-              <Field label="Valor">
-                <input className={inputClass} value={form.valorAlvo || ''} onChange={(e) => setForm((f) => ({ ...f, valorAlvo: e.target.value }))} placeholder="Ex: 85 Famílias" />
-              </Field>
-            </div>
-
-            <Field label="Objetivo">
-              <input className={inputClass} value={form.objetivo || ''} onChange={(e) => setForm((f) => ({ ...f, objetivo: e.target.value }))} />
-            </Field>
-
-            <FileUpload label="Imagem" currentUrl={form.urlImagem} onUpload={(url) => setForm((f) => ({ ...f, urlImagem: url }))} />
-
-            <div className="flex gap-3 pt-2">
-              <button type="button" onClick={closeModal} className="flex-1 px-4 py-2.5 border border-gray-200 rounded-xl text-gray-700 hover:bg-gray-50 transition-colors">Cancelar</button>
-              <button type="submit" disabled={saving} className="flex-1 px-4 py-2.5 bg-green-700 hover:bg-green-800 text-white rounded-xl font-medium transition-colors flex items-center justify-center gap-2 disabled:opacity-60">
-                {saving && <Loader2 className="w-4 h-4 animate-spin" />}
-                {editing ? 'Salvar' : 'Criar'}
-              </button>
-            </div>
-          </form>
-        </Modal>
       )}
 
       {deleteId && <ConfirmDelete onConfirm={handleDelete} onCancel={() => setDeleteId(null)} loading={deleting} />}

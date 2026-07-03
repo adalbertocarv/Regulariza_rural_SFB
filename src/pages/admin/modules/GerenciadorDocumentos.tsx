@@ -1,5 +1,5 @@
 import { useState, useEffect, FormEvent } from 'react';
-import { Plus, Pencil, Trash2, Loader2, Download, FileText, Eye } from 'lucide-react';
+import { Plus, Pencil, Trash2, Loader2, Download, FileText, Eye, BookOpen } from 'lucide-react';
 import { api, adminApi, DocumentoRepositorio } from '../../../lib/api';
 import { Modal, ConfirmDelete, FileUpload, Field, inputClass, textareaClass, selectClass } from './compartilhado';
 
@@ -8,22 +8,23 @@ const DOC_TYPES = ['DOWNLOAD', 'LINK', 'WATCH'];
 const emptyForm: Partial<DocumentoRepositorio> = { titulo: '', descricao: '', tipoIcone: 'pdf', tamanhoArquivo: '', tipoDocumento: 'DOWNLOAD', urlArquivo: '' };
 
 function DocTypeIcon({ type }: { type: string }) {
-  const base = 'w-10 h-10 rounded-lg flex items-center justify-center';
-  const icons: Record<string, JSX.Element> = {
-    pdf: <div className={`${base} bg-green-100`}><FileText className="w-5 h-5 text-green-700" /></div>,
-    docx: <div className={`${base} bg-blue-100`}><FileText className="w-5 h-5 text-blue-700" /></div>,
-    video: <div className={`${base} bg-gray-100`}><Eye className="w-5 h-5 text-gray-700" /></div>,
+  const base = 'w-9 h-9 flex items-center justify-center border border-preto-10';
+  const map: Record<string, JSX.Element> = {
+    pdf:    <div className={`${base} bg-red-50`}><FileText className="w-4 h-4 text-red-600" /></div>,
+    docx:   <div className={`${base} bg-blue-50`}><FileText className="w-4 h-4 text-blue-600" /></div>,
+    video:  <div className={`${base} bg-preto-5`}><Eye className="w-4 h-4 text-black/50" /></div>,
+    artigo: <div className={`${base} bg-destaque-1/10`}><FileText className="w-4 h-4 text-destaque-1" /></div>,
   };
-  return icons[type] || <div className={`${base} bg-gray-100`}><Download className="w-5 h-5 text-gray-700" /></div>;
+  return map[type] || <div className={`${base} bg-preto-5`}><Download className="w-4 h-4 text-black/50" /></div>;
 }
 
 export default function GerenciadorDocumentos() {
-  const [items, setItems] = useState<DocumentoRepositorio[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [items, setItems]       = useState<DocumentoRepositorio[]>([]);
+  const [loading, setLoading]   = useState(true);
   const [showModal, setShowModal] = useState(false);
-  const [editing, setEditing] = useState<DocumentoRepositorio | null>(null);
-  const [form, setForm] = useState<Partial<DocumentoRepositorio>>(emptyForm);
-  const [saving, setSaving] = useState(false);
+  const [editing, setEditing]   = useState<DocumentoRepositorio | null>(null);
+  const [form, setForm]         = useState<Partial<DocumentoRepositorio>>(emptyForm);
+  const [saving, setSaving]     = useState(false);
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [deleting, setDeleting] = useState(false);
 
@@ -39,69 +40,80 @@ export default function GerenciadorDocumentos() {
   const closeModal = () => { setShowModal(false); setEditing(null); setForm(emptyForm); };
 
   const handleSave = async (e: FormEvent) => {
-    e.preventDefault();
-    setSaving(true);
+    e.preventDefault(); setSaving(true);
     try {
-      if (editing) await adminApi.updateDocument(editing.id, form);
-      else await adminApi.createDocument(form);
+      editing ? await adminApi.updateDocument(editing.id, form) : await adminApi.createDocument(form);
       closeModal(); loadData();
     } catch (e: unknown) { alert(e instanceof Error ? e.message : 'Erro'); } finally { setSaving(false); }
   };
 
   const handleDelete = async () => {
-    if (!deleteId) return;
-    setDeleting(true);
+    if (!deleteId) return; setDeleting(true);
     try { await adminApi.deleteDocument(deleteId); setDeleteId(null); loadData(); } finally { setDeleting(false); }
   };
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-start justify-between mb-8">
         <div>
-          <h2 className="text-xl font-bold text-gray-900">Repositório</h2>
-          <p className="text-sm text-gray-500">Documentos, vídeos e materiais para download</p>
+          <span className="text-destaque-1 font-mono tracking-[0.25em] text-[9px] uppercase font-bold block mb-1">Arquivos e Mídias</span>
+          <h2 className="text-2xl font-serif font-bold text-black tracking-tight">Repositório</h2>
+          <div className="h-[2px] w-10 bg-destaque-1 mt-3" />
         </div>
-        <button id="docs-create-btn" onClick={openCreate} className="flex items-center gap-2 bg-green-700 hover:bg-green-800 text-white px-4 py-2.5 rounded-xl text-sm font-medium transition-colors">
-          <Plus className="w-4 h-4" /> Novo Documento
+        <button id="docs-create-btn" onClick={openCreate} className="flex items-center gap-2 bg-destaque-1 hover:bg-destaque-1/90 text-white px-4 py-2.5 font-mono uppercase tracking-[0.18em] text-[9px] font-bold transition-colors">
+          <Plus className="w-3.5 h-3.5" /> Novo Documento
         </button>
       </div>
 
       {loading ? (
-        <div className="flex justify-center py-20"><Loader2 className="w-8 h-8 text-green-600 animate-spin" /></div>
+        <div className="flex flex-col items-center justify-center py-20 gap-3">
+          <Loader2 className="w-7 h-7 text-destaque-1 animate-spin" />
+          <span className="font-mono uppercase tracking-wider text-[9px] text-black/30">Carregando...</span>
+        </div>
       ) : (
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-gray-100 bg-gray-50">
-                <th className="text-left px-5 py-3 font-semibold text-gray-600">Tipo</th>
-                <th className="text-left px-5 py-3 font-semibold text-gray-600">Título</th>
-                <th className="text-left px-5 py-3 font-semibold text-gray-600">Ação</th>
-                <th className="text-left px-5 py-3 font-semibold text-gray-600">Tamanho</th>
-                <th className="text-right px-5 py-3 font-semibold text-gray-600">Ações</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-50">
-              {items.map((item) => (
-                <tr key={item.id} className="hover:bg-gray-50 transition-colors">
-                  <td className="px-5 py-3"><DocTypeIcon type={item.tipoIcone || 'pdf'} /></td>
-                  <td className="px-5 py-3 max-w-xs">
-                    <div className="font-medium text-gray-900 truncate">{item.titulo}</div>
-                    <div className="text-gray-400 text-xs truncate">{item.descricao}</div>
-                  </td>
-                  <td className="px-5 py-3">
-                    <span className="text-xs font-bold px-2 py-0.5 bg-gray-100 text-gray-600 rounded">{item.tipoDocumento}</span>
-                  </td>
-                  <td className="px-5 py-3 text-gray-500">{item.tamanhoArquivo}</td>
-                  <td className="px-5 py-3 text-right">
-                    <div className="flex items-center justify-end gap-1">
-                      <button onClick={() => openEdit(item)} className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"><Pencil className="w-4 h-4" /></button>
-                      <button onClick={() => setDeleteId(item.id)} className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"><Trash2 className="w-4 h-4" /></button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="bg-white border border-preto-10 overflow-hidden">
+          {items.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-16 gap-3">
+              <BookOpen className="w-10 h-10 text-black/10" />
+              <span className="font-mono uppercase tracking-wider text-[9px] text-black/30">Nenhum documento cadastrado</span>
+              <button onClick={openCreate} className="font-mono uppercase tracking-[0.18em] text-[9px] font-bold text-destaque-1 hover:underline">Adicionar o primeiro →</button>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-preto-10 bg-preto-5">
+                    <th className="text-left px-5 py-3 font-mono uppercase tracking-[0.15em] text-[9px] text-black/40 font-bold">Tipo</th>
+                    <th className="text-left px-5 py-3 font-mono uppercase tracking-[0.15em] text-[9px] text-black/40 font-bold">Título</th>
+                    <th className="text-left px-5 py-3 font-mono uppercase tracking-[0.15em] text-[9px] text-black/40 font-bold">Ação</th>
+                    <th className="text-left px-5 py-3 font-mono uppercase tracking-[0.15em] text-[9px] text-black/40 font-bold">Tamanho</th>
+                    <th className="text-right px-5 py-3 font-mono uppercase tracking-[0.15em] text-[9px] text-black/40 font-bold">Ações</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-preto-5">
+                  {items.map((item) => (
+                    <tr key={item.id} className="hover:bg-preto-5 transition-colors">
+                      <td className="px-5 py-3"><DocTypeIcon type={item.tipoIcone || 'pdf'} /></td>
+                      <td className="px-5 py-3 max-w-xs">
+                        <div className="font-semibold text-black truncate text-sm">{item.titulo}</div>
+                        <div className="text-black/35 text-xs truncate font-sans mt-0.5">{item.descricao}</div>
+                      </td>
+                      <td className="px-5 py-3">
+                        <span className="text-[9px] font-mono font-bold px-2 py-1 bg-preto-5 text-black/50 uppercase tracking-wider border border-preto-10">{item.tipoDocumento}</span>
+                      </td>
+                      <td className="px-5 py-3 text-black/40 font-mono text-[10px]">{item.tamanhoArquivo}</td>
+                      <td className="px-5 py-3 text-right">
+                        <div className="flex items-center justify-end gap-1">
+                          <button onClick={() => openEdit(item)} className="p-2 text-black/30 hover:text-destaque-2 hover:bg-destaque-2/5 transition-colors"><Pencil className="w-3.5 h-3.5" /></button>
+                          <button onClick={() => setDeleteId(item.id)} className="p-2 text-black/30 hover:text-red-600 hover:bg-red-50 transition-colors"><Trash2 className="w-3.5 h-3.5" /></button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       )}
 
@@ -129,17 +141,11 @@ export default function GerenciadorDocumentos() {
             <Field label="Tamanho / Descrição curta">
               <input className={inputClass} value={form.tamanhoArquivo || ''} onChange={(e) => setForm((f) => ({ ...f, tamanhoArquivo: e.target.value }))} placeholder="Ex: 2.4 MB" />
             </Field>
-            <FileUpload
-              label="Arquivo / Documento"
-              currentUrl={form.urlArquivo}
-              onUpload={(url) => setForm((f) => ({ ...f, urlArquivo: url }))}
-              accept=".pdf,.zip,.docx,.mp4,.webm,image/*"
-              hint="PDF, ZIP, DOCX, Vídeo — Máx. 50MB"
-            />
-            <div className="flex gap-3 pt-2">
-              <button type="button" onClick={closeModal} className="flex-1 px-4 py-2.5 border border-gray-200 rounded-xl text-gray-700 hover:bg-gray-50 transition-colors">Cancelar</button>
-              <button type="submit" disabled={saving} className="flex-1 px-4 py-2.5 bg-green-700 hover:bg-green-800 text-white rounded-xl font-medium flex items-center justify-center gap-2 disabled:opacity-60">
-                {saving && <Loader2 className="w-4 h-4 animate-spin" />} {editing ? 'Salvar' : 'Criar'}
+            <FileUpload label="Arquivo / Documento" currentUrl={form.urlArquivo} onUpload={(url) => setForm((f) => ({ ...f, urlArquivo: url }))} accept=".pdf,.zip,.docx,.mp4,.webm,image/*" hint="PDF, ZIP, DOCX, Vídeo — Máx. 50MB" />
+            <div className="flex gap-3 pt-2 border-t border-preto-10">
+              <button type="button" onClick={closeModal} className="flex-1 px-4 py-2.5 border border-preto-10 text-black/60 hover:bg-preto-5 font-mono uppercase tracking-[0.15em] text-[9px] font-bold">Cancelar</button>
+              <button type="submit" disabled={saving} className="flex-1 px-4 py-2.5 bg-destaque-1 hover:bg-destaque-1/90 text-white font-mono uppercase tracking-[0.15em] text-[9px] font-bold flex items-center justify-center gap-2 disabled:opacity-60">
+                {saving && <Loader2 className="w-3.5 h-3.5 animate-spin" />} {editing ? 'Salvar Alterações' : 'Criar Documento'}
               </button>
             </div>
           </form>

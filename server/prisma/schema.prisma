@@ -34,17 +34,55 @@ model Noticia {
 }
 
 model Atividade {
-  id         Int      @id @default(autoincrement())
-  titulo     String   @db.VarChar(255)
-  descricao  String?  @db.Text
-  insignias  String[]
-  valorAlvo  String?  @db.VarChar(100) @map("valor_alvo")
-  rotuloAlvo String?  @db.VarChar(100) @map("rotulo_alvo")
-  objetivo   String?  @db.VarChar(255)
-  urlImagem  String?  @db.VarChar(500) @map("url_imagem")
-  criadoEm   DateTime @default(now()) @map("criado_em")
+  id           Int      @id @default(autoincrement())
+  titulo       String   @db.VarChar(255)
+  descricao    String?  @db.Text
+  insignias    String[]
+  valorAlvo    String?  @db.VarChar(100) @map("valor_alvo")
+  rotuloAlvo   String?  @db.VarChar(100) @map("rotulo_alvo")
+  objetivo     String?  @db.VarChar(255)
+  componenteId Int?     @map("componente_id")
+  tipoAcao     String?  @db.VarChar(100) @map("tipo_acao")
+  demandante   String?  @db.VarChar(100)
+  estados      String[]
+  hectares              String?  @db.VarChar(100)
+  valorImpacto          String?  @db.VarChar(100) @map("valor_impacto")
+  rotuloImpacto         String?  @db.VarChar(100) @map("rotulo_impacto")
+  metrica1Valor         String?  @db.VarChar(100) @map("metrica1_valor")
+  metrica1Rotulo        String?  @db.VarChar(100) @map("metrica1_rotulo")
+  delineamentoDescricao String?  @db.Text @map("delineamento_descricao")
+  parceiros             String[]
+  data                  String?  @db.VarChar(100)
+  status                String   @default("publicado") @db.VarChar(20)
+  criadoEm              DateTime @default(now()) @map("criado_em")
+
+  imagens      AtividadeImagem[]
+  pontos       AtividadePonto[]
 
   @@map("atividades")
+}
+
+model AtividadeImagem {
+  id          Int       @id @default(autoincrement())
+  atividadeId Int       @map("atividade_id")
+  url         String    @db.VarChar(500)
+  ordem       Int       @default(0)
+  legenda     String?   @db.VarChar(255)
+  atividade   Atividade @relation(fields: [atividadeId], references: [id], onDelete: Cascade)
+
+  @@map("atividade_imagens")
+}
+
+model AtividadePonto {
+  id          Int       @id @default(autoincrement())
+  atividadeId Int       @map("atividade_id")
+  lat         Float
+  lng         Float
+  rotulo      String?   @db.VarChar(100)
+  ordem       Int       @default(0)
+  atividade   Atividade @relation(fields: [atividadeId], references: [id], onDelete: Cascade)
+
+  @@map("atividade_pontos")
 }
 
 model Depoimento {

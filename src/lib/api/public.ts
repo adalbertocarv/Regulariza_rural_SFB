@@ -16,7 +16,7 @@ export const api = {
   getNewsById: (id: number) => request<Noticia>(`/noticias/${id}`),
 
   // Activities
-  getActivities: (params?: { page?: number; limit?: number }) => {
+  getActivities: (params?: { page?: number; limit?: number; componenteId?: number; estado?: string; demandante?: string; tipoAcao?: string }) => {
     const qs = new URLSearchParams(
       Object.entries(params || {})
         .filter(([, v]) => v !== undefined)
